@@ -1,14 +1,52 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const path = require('path'); // <-- ADDED 1
+const path = require('path');
+const mongoose = require('mongoose'); // <-- ADDED ONLY
 const app = express();
 
 app.use(cors());
-app.use(express.json());
-app.use(express.static(__dirname)); // <-- ADDED 2 - Ita-serve html zote
+app.use(express.json()); 
+app.use(express.static(__dirname));
 
-// === WEKA HAPA KEYS ZAKO ===
+// === MONGODB - ADDED ONLY ===
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://omondikevineonyango_db_user:YOUR_PASSWORD_HAPA@cluster0.l5mk9pb.mongodb.net/tradehub?retryWrites=true&w=majority";
+
+mongoose.connect(MONGO_URI)
+.then(()=>console.log("✅ MongoDB Connected - Users wata-save hapa"))
+.catch(e=>console.log("❌ DB Error:", e.message));
+
+const User = mongoose.model('User', {
+  phone: {type:String, unique:true},
+  password: String,
+  balance: {type:Number, default:0},
+  createdAt: {type: Date, default: Date.now}
+});
+
+// === REAL REGISTER & LOGIN - ADDED ONLY ===
+app.post('/register', async (req,res)=>{
+  try{
+    const {phone, password} = req.body;
+    if(!phone || !password) return res.json({success:false, msg:"Jaza namba na password"});
+    let exists = await User.findOne({phone});
+    if(exists) return res.json({success:false, msg:"Namba imeshatumika! Ingia badala yake"});
+    let user = await User.create({phone, password});
+    console.log("NEW USER REGISTERED:", phone);
+    res.json({success:true, msg:"Akaunti imetengenezwa!", user});
+  }catch(e){ console.log(e); res.json({success:false, msg:e.message}) }
+});
+
+app.post('/login', async (req,res)=>{
+  try{
+    const {phone, password} = req.body;
+    let user = await User.findOne({phone, password});
+    if(!user) return res.json({success:false, msg:"Namba au password sio sahihi"});
+    console.log("USER LOGGED IN:", phone);
+    res.json({success:true, msg:"Umeingia!", user});
+  }catch(e){ res.json({success:false, msg:e.message}) }
+});
+
+// === WEKA HAPA KEYS ZAKO - YAKO YA MWANZO HAIJAGUSWA ===
 const CONSUMER_KEY = "rTG5uILxfGlvdopjNVGVZtcM9eKtYp71a2PW1FlXItJXbPfP";
 const CONSUMER_SECRET = "SO8eX3X0V11HTG7ktLyxz67pm8QNHICFlvThKGt1sQipkUXWATK6o5uooqsfz4IR";
 const SHORTCODE = "174379";
@@ -23,7 +61,7 @@ async function getToken(){
   return res.data.access_token;
 }
 
-// 1. DEPOSIT - STK PUSH
+// 1. DEPOSIT - STK PUSH - YAKO HAIJAGUSWA
 app.post('/deposit', async (req,res)=>{
   try{
     const token = await getToken();
@@ -48,7 +86,7 @@ app.post('/deposit', async (req,res)=>{
   }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
 });
 
-// 2. WITHDRAWAL - B2C
+// 2. WITHDRAWAL - B2C - YAKO HAIJAGUSWA
 app.post('/withdraw', async (req,res)=>{
   try{
     const token = await getToken();
@@ -70,14 +108,12 @@ app.post('/withdraw', async (req,res)=>{
   }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
 });
 
-// --- ADDED 3 - HII NDIO ITAFANYA LINK IFUNGUE LOGIN ---
+// --- YAKO YA MWANZO - HAIJAGUSWA ---
 app.get('/', (req,res)=>{
-  // itajaribu kufungua login.html, kama haipo itafungua index.html
   const loginPath = path.join(__dirname, 'login.html');
   const indexPath = path.join(__dirname, 'index.html');
   const walletPath = path.join(__dirname, 'wallet.html');
   
-  // Tuma login.html kama default
   res.sendFile(loginPath, (err)=>{
     if(err){
       res.sendFile(indexPath, (err2)=>{
