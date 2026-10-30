@@ -1,16 +1,19 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const path = require('path'); // <-- ADDED 1
 const app = express();
+
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname)); // <-- ADDED 2 - Ita-serve html zote
 
 // === WEKA HAPA KEYS ZAKO ===
-const CONSUMER_KEY = "rTG5uILxfGlvdopjNVGVZtcM9eKtYp71a2PW1FlXItJXbPfP"; // weka key yako kamili uliyo-copy
-const CONSUMER_SECRET = "SO8eX3X0V11HTG7ktLyxz67pm8QNHICFlvThKGt1sQipkUXWATK6o5uooqsfz4IR"; // weka secret yako kamili
+const CONSUMER_KEY = "rTG5uILxfGlvdopjNVGVZtcM9eKtYp71a2PW1FlXItJXbPfP";
+const CONSUMER_SECRET = "SO8eX3X0V11HTG7ktLyxz67pm8QNHICFlvThKGt1sQipkUXWATK6o5uooqsfz4IR";
 const SHORTCODE = "174379";
 const PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
-const SECURITY_CRED = "geWcxfFshPGcdKHx0cGm3ANuFGb7RW8ei7QpKsrA2E/OsDCihxHyGdO7J/kKyZnNbOxywms3WDp3wFtyLxro/Xn61rou3k7Zb4aJAXu/hXfay3VIFv+Two6jTKksHfXFG5cqg5ggLfBJcouWfIqM/LZSFj/L8RXgyGhtEzB8TLAOFxtGDaz/WVEzOhaIVrtx5SXbtxm2p4gyvUp6ZlIEYcKkEvDnCnTPQKiEtw7IqctTCTxv/PnE7p7vU9i9OaRrTHwVGU5rtNkyJR8fT8fP9sHRyHoGjlXoPIF8VFBmTUSpW5eHJ35LIkhK+a0TSNJSFGAufLqXEvInFNCWqAGjxg=="; // weka ile ndefu uliyo-generate hapa - TOA hizo "" 
+const SECURITY_CRED = "geWcxfFshPGcdKHx0cGm3ANuFGb7RW8ei7QpKsrA2E/OsDCihxHyGdO7J/kKyZnNbOxywms3WDp3wFtyLxro/Xn61rou3k7Zb4aJAXu/hXfay3VIFv+Two6jTKksHfXFG5cqg5ggLfBJcouWfIqM/LZSFj/L8RXgyGhtEzB8TLAOFxtGDaz/WVEzOhaIVrtx5SXbtxm2p4gyvUp6ZlIEYcKkEvDnCnTPQKiEtw7IqctTCTxv/PnE7p7vU9i9OaRrTHwVGU5rtNkyJR8fT8fP9sHRyHoGjlXoPIF8VFBmTUSpW5eHJ35LIkhK+a0TSNJSFGAufLqXEvInFNCWqAGjxg==";
 const INITIATOR = "testapi";
 // ============================
 
@@ -67,7 +70,26 @@ app.post('/withdraw', async (req,res)=>{
   }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
 });
 
-app.get('/', (req,res)=>res.send('TradeHub Backend LIVE ✅ - /deposit & /withdraw ready'));
+// --- ADDED 3 - HII NDIO ITAFANYA LINK IFUNGUE LOGIN ---
+app.get('/', (req,res)=>{
+  // itajaribu kufungua login.html, kama haipo itafungua index.html
+  const loginPath = path.join(__dirname, 'login.html');
+  const indexPath = path.join(__dirname, 'index.html');
+  const walletPath = path.join(__dirname, 'wallet.html');
+  
+  // Tuma login.html kama default
+  res.sendFile(loginPath, (err)=>{
+    if(err){
+      res.sendFile(indexPath, (err2)=>{
+        if(err2){
+          res.sendFile(walletPath, (err3)=>{
+            if(err3) res.send('TradeHub Backend LIVE ✅ - /deposit & /withdraw ready');
+          });
+        }
+      });
+    }
+  });
+});
 
 const PORT = process.env.PORT || 10000
 app.listen(PORT, '0.0.0.0', ()=> {console.log(`✅ Backend LIVE on port ${PORT}`)});
