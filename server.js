@@ -123,6 +123,16 @@ app.delete('/api/users/:id', async (req,res)=>{
   }catch(e){ res.json({success:false, msg:e.message}) }
 });
 
+app.post('/api/admin/add-balance', async (req,res)=>{
+  try{
+    const {userId, amount} = req.body;
+    let user = await User.findById(userId);
+    user.balance = (user.balance||0) + Number(amount);
+    await user.save();
+    res.json({success:true});
+  }catch(e){ res.json({success:false, msg:e.message}) }
+});
+
 // --- YAKO YA MWANZO - HAIJAGUSWA ---
 app.get('/', (req,res)=>{
   const loginPath = path.join(__dirname, 'login.html');
