@@ -3,13 +3,12 @@
 if(localStorage.getItem('loggedIn') !== 'true'){
   window.location.href = 'index.html';
 }
-
 // Onyesha Admin link kwa vokeh pekee
 if(localStorage.getItem('username')==='vokeh@254'){
-  document.body.insertAdjacentHTML('afterbegin', `<a href="admin.html" style="position:fixed;bottom:20px;right:20px;background:#f0b90b;color:#000;padding:10px 15px;border-radius:20px;font-weight:900;text-decoration:none;z-index:999">ADMIN PANEL</a>`);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    document.body.insertAdjacentHTML('beforeend', `<a href="admin.html" style="position:fixed;bottom:20px;right:20px;background:#f0b90b;color:#000;padding:10px 15px;border-radius:20px;font-weight:900;text-decoration:none;z-index:999">ADMIN PANEL</a>`);
+  });
 }
-
-
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="style.css"></head><body>
 <div class="topbar"><div class="logo">KEVIN TRADE<span>HUB</span> KE</div><div class="nav">
@@ -19,15 +18,11 @@ if(localStorage.getItem('username')==='vokeh@254'){
 <div class="dashboard-grid">
 <div class="card" style="height: 270px">
   <p style="opacity:0.6;font-size:12px">Total Balance</p><h1 style="color:#0ecb81;font-size:28px" id="totalBal">$0.00</h1><p style="font-size:12px;opacity:0.6">+$582.31 Today</p><button class="buy" style="width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px" onclick="location.href='wallet.html'">Deposit</button><br><br><button class="sell" style="width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px" onclick="location.href='wallet.html'">Withdraw</button><br><br><br>
-
   <button onclick="location.href='trade.html'" style="width:100%;padding:14px;background:linear-gradient(90deg,#f00b0b,#f8d12f);color:#000;border:none;border-radius:12px;font-weight:900;font-size:14px;cursor:pointer">
 🚀 GO TO TRADE →
 </button>
 </div>
 <div class="card" style="height: 125px"><p style="opacity:0.6;font-size:12px">Open P/L</p><h1 style="color:#0ecb81;font-size:28px" id="openPL">+$342.10</h1><p style="font-size:12px;opacity:0.6">3 Positions Active</p><button style="width:100%;padding:10px;background:#2a2a3a;color:#fff;border:none;border-radius:8px;margin-top:10px" onclick="location.href='portfolio.html'">View Positions</button></div>
-
-
-
 <div class="card" style="height: 125px"><p style="opacity:0.6;font-size:12px">Quick Action</p><h3 style="margin:8px 0">M-Pesa Deposit</h3><button class="buy" style="width:100%;padding:12px;border:none;border-radius:8px;font-weight:800" onclick="location.href='wallet.html'">M-Pesa Deposit →</button><p style="font-size:10px;opacity:0.5;margin-top:8px">Instant • Min KES 1290.67</p></div>
 </div>
 
@@ -54,9 +49,7 @@ if(localStorage.getItem('username')==='vokeh@254'){
 <button onclick="location.href='trade.html'" style="flex:1;padding:8px;background:#2a2a3a;color:#fff;border:none;border-radius:6px;font-size:11px">Go Trade →</button>
 <button onclick="clearHistory()" style="flex:1;padding:8px;background:#15151d;border:1px solid #333;color:#888;border-radius:6px;font-size:11px">Clear</button>
 </div>
-<!-- === ONGEZA HII - DASHBOARD IKO IMEJAA SASA === -->
 
-<!-- 1. MARKET OVERVIEW MINI -->
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:12px">
 <div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">BTC</div><div style="font-weight:800;font-size:13px" class="livePrice" data-sym="BTCUSDT">$40,256</div><div style="font-size:10px;color:#0ecb81">+1.24%</div></div>
 <div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">ETH</div><div style="font-weight:800;font-size:13px" class="livePrice" data-sym="ETHUSDT">$2,983</div><div style="font-size:10px;color:#f6465d">-0.87%</div></div>
@@ -64,7 +57,6 @@ if(localStorage.getItem('username')==='vokeh@254'){
 <div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">GOLD</div><div style="font-weight:800;font-size:13px">$2,345</div><div style="font-size:10px;color:#0ecb81">+0.78%</div></div>
 </div>
 
-<!-- 2. OPEN POSITIONS PREVIEW + ACCOUNT HEALTH -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
 <div class="card">
 <div style="display:flex;justify-content:space-between"><h3>Open Positions</h3><span id="openCountDash" style="font-size:10px;background:#f0b90b;color:#000;padding:2px 8px;border-radius:10px;font-weight:800">0</span></div>
@@ -81,7 +73,6 @@ if(localStorage.getItem('username')==='vokeh@254'){
 </div>
 </div>
 </div>
-
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
 <div class="card" style="text-align:center">
@@ -109,20 +100,10 @@ if(localStorage.getItem('username')==='vokeh@254'){
 
 <script>
 function quickTrade(tv,name){localStorage.setItem('selectedSymbol',tv);localStorage.setItem('selectedName',name);location.href='trade.html';}
-
 function loadDashExtra(){
-  let bal=parseFloat(localStorage.getItem('balance')||'24587.32');
-  let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
-  let locked=parseFloat(localStorage.getItem('lockedBalance')||'12246');
   let trades=JSON.parse(localStorage.getItem('trades')||'[]');
   let closed=JSON.parse(localStorage.getItem('closedTrades')||'[]');
-  
-  document.getElementById('dashBal').innerText='$'+bal.toFixed(2);
-  document.getElementById('dashAvail').innerText='$'+avail.toFixed(2);
-  document.getElementById('dashLocked').innerText='$'+locked.toFixed(2);
   document.getElementById('openCountDash').innerText=trades.length;
-  
-  
   let prev=document.getElementById('openPreview');
   if(trades.length===0){
     prev.innerHTML='<p style="font-size:11px;opacity:0.5;text-align:center;padding:10px">No open trades<br><a href="trade.html" style="color:#f0b90b">Open one →</a></p>';
@@ -136,8 +117,6 @@ function loadDashExtra(){
     });
     prev.innerHTML=html;
   }
-  
-  
   let total=0,wins=0,loss=0;
   closed.forEach(c=>{total+=(c.pnl||0); if((c.pnl||0)>0) wins++; else if((c.pnl||0)<0) loss++;});
   document.getElementById('todayPnl').innerText=(total>=0?'+$':'-$')+Math.abs(total).toFixed(2);
@@ -145,18 +124,8 @@ function loadDashExtra(){
   document.getElementById('winsDash').innerText=wins;
   document.getElementById('lossDash').innerText=loss;
   document.getElementById('winRateDash').innerText=closed.length?((wins/closed.length)*100).toFixed(0)+'%':'0%';
-  
-  
-  let margin = bal>0? (avail/bal*100):0;
-  document.getElementById('marginBar').style.width=margin+'%';
-  document.getElementById('marginBar').style.background=margin>60?'#0ecb81':margin>30?'#f0b90b':'#f6465d';
-  document.getElementById('marginTxt').innerText=margin.toFixed(0)+'% - '+(margin>60?'Safe':margin>30?'Warning':'Danger');
-  document.getElementById('marginTxt').style.color=margin>60?'#0ecb81':margin>30?'#f0b90b':'#f6465d';
-  
-  
   fetchLive();
 }
-
 async function fetchLive(){
   try{
     let syms=['BTCUSDT','ETHUSDT','SOLUSDT'];
@@ -169,7 +138,6 @@ async function fetchLive(){
     }
   }catch(e){}
 }
-
 loadDashExtra();
 setInterval(loadDashExtra,3000);
 </script>
@@ -179,9 +147,7 @@ setInterval(loadDashExtra,3000);
 function renderRecentTrades(){
   let trades = JSON.parse(localStorage.getItem('trades')||'[]');
   let closed = JSON.parse(localStorage.getItem('closedTrades')||'[]');
-  let all = [...closed].reverse().slice(0,10); // last 10
-  
-  // Kama bado hujafunga trade, onyesha open trades kama history pia
+  let all = [...closed].reverse().slice(0,10);
   if(all.length===0 && trades.length>0){
     all = trades.slice(-5).reverse().map(t=>{
       let curP = parseFloat(localStorage.getItem('lastPrice')||t.entry);
@@ -189,12 +155,10 @@ function renderRecentTrades(){
       return {...t, pnl:pnl, status:'LIVE', time:'Now'};
     });
   }
-
   if(all.length===0){
     document.getElementById('recentTradesLive').innerHTML='<p style="font-size:12px;opacity:0.5;padding:15px 0;text-align:center">No trades yet.<br>Anza kutrade kwa Trade page</p>';
     return;
   }
-
   let html='';
   all.forEach(tr=>{
     let pnl = tr.pnl!==undefined?tr.pnl:0;
@@ -203,7 +167,6 @@ function renderRecentTrades(){
     let bg = isProfit?'rgba(14,203,129,0.1)':'rgba(246,70,93,0.1)';
     let icon = tr.side==='long'?'📈':'📉';
     let time = tr.time||new Date(tr.id).toLocaleTimeString();
-    
     html+=`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 10px;background:${bg};border-radius:8px;margin:6px 0;border-left:3px solid ${color}">
       <div>
@@ -216,27 +179,44 @@ function renderRecentTrades(){
       </div>
     </div>`;
   });
-  
-  // Total summary
   let totalPnl = all.reduce((s,t)=>s+(t.pnl||0),0);
   html+=`<div style="display:flex;justify-content:space-between;padding:10px;background:#0e0e12;border-radius:8px;margin-top:10px;font-size:12px"><span>Total P/L (Last ${all.length})</span><b style="color:${totalPnl>=0?'#0ecb81':'#f6465d'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</b></div>`;
-  
   document.getElementById('recentTradesLive').innerHTML=html;
 }
-
 function clearHistory(){
   if(confirm('Clear history?')){
     localStorage.removeItem('closedTrades');
     renderRecentTrades();
   }
 }
-
-// HII NDIO INAIFANYA LIVE - inasoma kila sec 2
 renderRecentTrades();
 setInterval(renderRecentTrades, 2000);
-
-// Blink LIVE dot
 setInterval(()=>{let d=document.getElementById('liveDot');if(d){d.style.opacity=d.style.opacity==='1'?'0.3':'1'}}, 800);
 </script>
 </div>
+
+<!-- === HII NDIO MPYA - BALANCE YAKE BINAFSI KUTOKA MONGODB === -->
+<script>
+async function loadMyRealBalance(){
+  let phone = localStorage.getItem('username');
+  if(!phone) return;
+  try{
+    // Jaribu API ya balance
+    let res = await fetch('/api/balance/' + phone);
+    let data = await res.json();
+    if(data.success){
+      let bal = data.balance || 0;
+      // Update kila mahali
+      if(document.getElementById('totalBal')) document.getElementById('totalBal').innerText = '$' + bal.toLocaleString();
+      if(document.getElementById('dashBal')) document.getElementById('dashBal').innerText = '$' + bal.toLocaleString();
+      // Hifadhi pia localStorage kwa trade page
+      localStorage.setItem('balance', bal);
+      localStorage.setItem('availBalance', bal);
+    }
+  }catch(e){ console.log('balance error', e); }
+}
+loadMyRealBalance();
+setInterval(loadMyRealBalance, 5000); // Refresh kila 5 sec akiongezewa na admin
+</script>
+
 </body></html>
