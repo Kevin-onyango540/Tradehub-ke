@@ -69,4 +69,5 @@ app.post('/withdraw', async (req,res)=>{
 
 app.get('/', (req,res)=>res.send('TradeHub Backend LIVE ✅ - /deposit & /withdraw ready'));
 
-app.listen(3000, ()=>console.log('✅ Backend LIVE http://localhost:3000'));
+const PORT = process.env.PORT || 10000
+app.listen(PORT, '0.0.0.0', ()=> {console.log(`✅ Backend LIVE on port ${PORT}`)});
