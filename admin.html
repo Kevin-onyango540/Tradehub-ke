@@ -19,7 +19,7 @@
 
 <div class="grid">
 <div class="card"><b id="totalUsers">0</b><span>TOTAL USERS</span></div>
-<div class="card"><b id="newToday">0</b><span>NEW TODAY</span></div>
+<div class="card"><b id="totalBal">0</b><span>TOTAL BALANCE (KES)</span></div>
 <div class="card"><b id="onlineNow">1</b><span>ONLINE</span></div>
 </div>
 
@@ -42,7 +42,6 @@ async function loadUsers(){
    if(!data.success) return;
    let users = data.users;
 
-   // Live toast detection
    if(lastCount && users.length>lastCount){
      let toast=document.getElementById('liveToast');
      toast.style.display='block'; toast.innerText='🟢 New user! Total: '+users.length;
@@ -52,17 +51,18 @@ async function loadUsers(){
    lastCount=users.length;
 
    document.getElementById('totalUsers').innerText=users.length;
-   document.getElementById('newToday').innerText=users.filter(u=> (Date.now()-new Date(u.createdAt).getTime()) < 24*60*60*1000 ).length;
-   
+   let total = users.reduce((s,u)=> s + (u.balance||0), 0);
+   document.getElementById('totalBal').innerText=total.toLocaleString();
+
    let html='<div class="row head"><div>#</div><div>USERNAME</div><div>JOINED / STATUS</div><div>ACTION</div></div>';
    users.forEach((u,i)=>{
      let date=new Date(u.createdAt).toLocaleString();
-     let isAdmin=u.phone=='vokeh@254' || u.phone=='vokeh@2540';
+     let isAdmin=u.phone=='vokeh@254';
      html+=`<div class="row">
       <div>${i+1}</div>
-      <div><b>${u.phone}</b> ${isAdmin?'<span class="badge">ADMIN</span>':''}<br><span style="opacity:0.5;font-size:10px">Bal: ${u.balance}</span></div>
+      <div><b>${u.phone}</b> ${isAdmin?'<span class="badge">ADMIN</span>':''}<br><b style="color:#f0b90b;font-size:13px">KES ${(u.balance||0).toLocaleString()}</b></div>
       <div><span style="opacity:0.6">${date}</span><br><span class="badge">${isAdmin?'Owner':'Active'}</span></div>
-      <div><button class="btn" style="background:#f6465d;color:#fff" onclick="deleteUser('${u._id}','${u.phone}')">Del</button></div>
+      <div style="display:flex;gap:5px"><button class="btn" style="background:#f0b90b;color:#000" onclick="addBal('${u._id}','${u.phone}',${u.balance||0})">+ADD</button><button class="btn" style="background:#f6465d;color:#fff" onclick="deleteUser('${u._id}','${u.phone}')">Del</button></div>
      </div>`;
    });
    document.getElementById('userTable').innerHTML=html;
@@ -70,14 +70,28 @@ async function loadUsers(){
 }
 
 async function deleteUser(id, name){
- if(name=='vokeh@254' || name=='vokeh@2540'){ alert('you are the admin'); return; }
+ if(name=='vokeh@254'){ alert('you are the admin'); return; }
  if(!confirm('Delete '+name+'?')) return;
  await fetch('/api/users/'+id, {method:'DELETE'});
  loadUsers();
 }
 
-// Poll every 3 seconds for new users - REAL LIVE from DB
-setInterval(loadUsers, 3000);
+async function addBal(id, name, bal){
+ let amt = prompt(`Ongeza pesa ngapi kwa ${name}?\nBalance sasa: KES ${bal}`);
+ if(!amt) return;
+ amt = parseFloat(amt);
+ if(isNaN(amt)) return alert('Weka number!');
+ let res = await fetch('/api/admin/add-balance',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({userId:id, amount:amt})
+ });
+ let data = await res.json();
+ if(data.success){ alert(`✅ ${name} ameongezewa KES ${amt}`); loadUsers(); }
+ else alert(data.msg);
+}
+
+setInterval(loadUsers,3000);
 loadUsers();
 </script>
 </body></html>
