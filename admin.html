@@ -33,61 +33,51 @@
 if(localStorage.getItem('username')!=='vokeh@254' || localStorage.getItem('loggedIn')!=='true'){ location.href='index.html'; }
 document.getElementById('adminUser').innerText=localStorage.getItem('username');
 
-function loadUsers(){
- let users=JSON.parse(localStorage.getItem('users')||'[]');
- // add old single user if exists
- let old=localStorage.getItem('username');
- if(old && users.length==0){ users=[{username:old, passHash:'old', joined:Date.now()}]; }
+let lastCount=0;
 
- document.getElementById('totalUsers').innerText=users.length;
- document.getElementById('newToday').innerText=users.filter(u=> (Date.now()-(u.joined||0)) < 24*60*60*1000 ).length || users.length;
- 
- let html='<div class="row head"><div>#</div><div>USERNAME</div><div>JOINED / STATUS</div><div>ACTION</div></div>';
- users.forEach((u,i)=>{
-   let date=u.joined? new Date(u.joined).toLocaleString() : 'Just now';
-   let isAdmin=u.username=='vokeh@254';
-   html+=`<div class="row">
-    <div>${i+1}</div>
-    <div><b>${u.username}</b> ${isAdmin?'<span class="badge">ADMIN</span>':''}</div>
-    <div><span style="opacity:0.6">${date}</span><br><span class="badge">${isAdmin?'Owner':'Active'}</span></div>
-    <div><button class="btn" style="background:#f6465d;color:#fff" onclick="deleteUser('${u.username}')">Del</button></div>
-   </div>`;
- });
- document.getElementById('userTable').innerHTML=html;
+async function loadUsers(){
+ try{
+   let res = await fetch('/api/users');
+   let data = await res.json();
+   if(!data.success) return;
+   let users = data.users;
+
+   // Live toast detection
+   if(lastCount && users.length>lastCount){
+     let toast=document.getElementById('liveToast');
+     toast.style.display='block'; toast.innerText='🟢 New user! Total: '+users.length;
+     setTimeout(()=>toast.style.display='none',4000);
+     try{ new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3').play(); }catch(e){}
+   }
+   lastCount=users.length;
+
+   document.getElementById('totalUsers').innerText=users.length;
+   document.getElementById('newToday').innerText=users.filter(u=> (Date.now()-new Date(u.createdAt).getTime()) < 24*60*60*1000 ).length;
+   
+   let html='<div class="row head"><div>#</div><div>USERNAME</div><div>JOINED / STATUS</div><div>ACTION</div></div>';
+   users.forEach((u,i)=>{
+     let date=new Date(u.createdAt).toLocaleString();
+     let isAdmin=u.phone=='vokeh@254' || u.phone=='vokeh@2540';
+     html+=`<div class="row">
+      <div>${i+1}</div>
+      <div><b>${u.phone}</b> ${isAdmin?'<span class="badge">ADMIN</span>':''}<br><span style="opacity:0.5;font-size:10px">Bal: ${u.balance}</span></div>
+      <div><span style="opacity:0.6">${date}</span><br><span class="badge">${isAdmin?'Owner':'Active'}</span></div>
+      <div><button class="btn" style="background:#f6465d;color:#fff" onclick="deleteUser('${u._id}','${u.phone}')">Del</button></div>
+     </div>`;
+   });
+   document.getElementById('userTable').innerHTML=html;
+ }catch(e){ console.log(e); }
 }
 
-// Live detection - kila mtu akisign up
-let lastCount=JSON.parse(localStorage.getItem('users')||'[]').length;
-setInterval(()=>{
- let now=JSON.parse(localStorage.getItem('users')||'[]').length;
- if(now>lastCount){
-   let toast=document.getElementById('liveToast');
-   toast.style.display='block'; toast.innerText='🟢 New user! Total: '+now;
-   setTimeout(()=>toast.style.display='none',4000);
-   // sound
-   try{ new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3').play(); }catch(e){}
-   lastCount=now;
-   loadUsers();
- }
-},1000);
-
-function deleteUser(name){
- if(name=='vokeh@254'){ alert('you are the admin'); return; }
+async function deleteUser(id, name){
+ if(name=='vokeh@254' || name=='vokeh@2540'){ alert('you are the admin'); return; }
  if(!confirm('Delete '+name+'?')) return;
- let users=JSON.parse(localStorage.getItem('users')||'[]');
- users=users.filter(u=>u.username!==name);
- localStorage.setItem('users', JSON.stringify(users));
+ await fetch('/api/users/'+id, {method:'DELETE'});
  loadUsers();
 }
 
-// add joined timestamp kwa signup - patch
-(function(){
- let users=JSON.parse(localStorage.getItem('users')||'[]');
- let changed=false;
- users.forEach(u=>{ if(!u.joined){ u.joined=Date.now(); changed=true; } });
- if(changed) localStorage.setItem('users', JSON.stringify(users));
-})();
-
+// Poll every 3 seconds for new users - REAL LIVE from DB
+setInterval(loadUsers, 3000);
 loadUsers();
 </script>
 </body></html>
