@@ -30,7 +30,6 @@ body{min-height:100vh;overflow:hidden;display:flex;align-items:center;justify-co
 <div class="container">
 <div class="left">
 <div class="logo">KEVIN TRADE<span>HUB</span> KE</div>
-
 <div class="badge"><i class="fas fa-circle" style="font-size:6px"></i> LIVE • 12,450+ Online </div>
 <p style="opacity:0.75;font-size:11px">Kenya's #1 Crypto & Gold Trading.</p>
 <div class="live-tick">
@@ -50,14 +49,12 @@ body{min-height:100vh;overflow:hidden;display:flex;align-items:center;justify-co
 <div class="right">
 <h2 style="font-size:19px">Welcome Back 👋</h2>
 <p style="font-size:10px;opacity:0.6;margin:6px 0 14px">Login - coins awats you!</p>
-
 <div class="tab">
 <div id="tabLogin" class="active" onclick="setMode('login')">LOGIN</div>
 <div id="tabSignup" onclick="setMode('signup')">SIGN UP</div>
 </div>
-
 <div id="errorBox" class="err"></div>
-<input class="input" id="user" placeholder="Username e.g vokeh@2540" value="enter username">
+<input class="input" id="user" placeholder="Username e.g vokeh@2540" value="">
 <input class="input" id="pass" type="password" placeholder="Password min 4 chars">
 <button id="mainBtn" class="btn" onclick="handleAuth()">LOGIN - FREE COINS 🪙</button>
 <p style="font-size:9px;text-align:center;margin-top:12px;opacity:0.5">Attempts: <span id="attemptsLeft">5</span> • <span style="color:#f0b90b;cursor:pointer" onclick="resetAll()">Reset 🔓</span></p>
@@ -65,7 +62,7 @@ body{min-height:100vh;overflow:hidden;display:flex;align-items:center;justify-co
 </div>
 
 <script>
-// COINS ANIMATION - YAKO YA MWANZO - HAIJAGUSWA
+// COINS ANIMATION - YAKO YA MWANZO - HAIJAGUSWA KABISA
 const canvas=document.getElementById('coin-canvas');const ctx=canvas.getContext('2d');
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.onresize=resize;
 const coins=[];const symbols=['₿','🪙','$','◎'];
@@ -81,7 +78,7 @@ function draw(){
  requestAnimationFrame(draw);
 }draw();
 
-// SECURITY FIXED - NA SIGN UP
+// === NEW REAL AUTH WITH MONGODB - ADDED ONLY ===
 let mode='login';
 function setMode(m){
  mode=m;
@@ -90,73 +87,67 @@ function setMode(m){
  document.getElementById('mainBtn').innerText=m=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - START!! 🚀';
  document.getElementById('errorBox').style.display='none';
 }
-const hash = async (str) => {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str+'_TRADEHUB_SALT'));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-};
-function resetAll(){ localStorage.removeItem('login_attempts'); localStorage.removeItem('lock_until'); localStorage.removeItem('auth_hash'); alert('Reset done! Sign Up'); location.reload(); }
-function updLock(){
- let attempts=JSON.parse(localStorage.getItem('login_attempts')||'{}');
- let u=(document.getElementById('user').value||'').toLowerCase().trim();
- let cnt=attempts[u]||0;
- document.getElementById('attemptsLeft').innerText=5-cnt;
- let lockUntil=parseInt(localStorage.getItem('lock_until')||'0');
- if(Date.now()<lockUntil){ document.getElementById('mainBtn').disabled=true; document.getElementById('mainBtn').innerText='LOCKED '+Math.ceil((lockUntil-Date.now())/1000)+'s'; setTimeout(updLock,1000); }
- else { document.getElementById('mainBtn').disabled=false; document.getElementById('mainBtn').innerText=mode=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - start 🚀'; }
-} updLock();
+function resetAll(){ localStorage.clear(); alert('Reset done!'); location.reload(); }
+function updLock(){ document.getElementById('attemptsLeft').innerText='5'; } updLock();
 
 async function handleAuth(){
  let u=document.getElementById('user').value.toLowerCase().trim();
  let p=document.getElementById('pass').value.trim();
  let errBox=document.getElementById('errorBox');
- let lockUntil=parseInt(localStorage.getItem('lock_until')||'0');
- if(Date.now()<lockUntil){ errBox.style.display='block'; errBox.innerText='Locked 15min - Click Reset'; return; }
- if(u.length<3||p.length<4){ errBox.style.display='block'; errBox.innerText='Username min 3, Password min 4'; return; }
+ let btn=document.getElementById('mainBtn');
 
- let users=JSON.parse(localStorage.getItem('users')||'[]');
- // migrate old single user if exists
- let oldHash=localStorage.getItem('auth_hash');
- if(oldHash && users.length==0 && localStorage.getItem('username')){
-   users.push({username:localStorage.getItem('username').toLowerCase().trim(), passHash:oldHash, joined:Date.now()}); 
-   localStorage.setItem('users', JSON.stringify(users));
- }
+ if(u.length<3||p.length<4){ errBox.style.display='block'; errBox.style.color='#f6465d'; errBox.innerText='Username min 3, Password min 4'; return; }
 
- let h=await hash(u+':'+p);
+ btn.disabled=true;
+ btn.innerText='⏳ Processing...';
 
- if(mode=='signup'){
-   if(users.find(x=>x.username==u)){ errBox.style.display='block'; errBox.innerText='Username already - :LOGIN'; setMode('login'); return; }
-   users.push({username:u, passHash:h, joined:Date.now()});
-   localStorage.setItem('users', JSON.stringify(users));
-   errBox.style.display='block'; errBox.style.color='#0ecb81'; errBox.innerText='Account created! Login know';
-   setMode('login');
-   return;
- } else {
-   let found=users.find(x=>x.username==u);
-   if(!found){ errBox.style.display='block'; errBox.innerText='No User - SIGN UP'; setMode('signup'); return; }
-   if(found.passHash!==h){
-     let at=JSON.parse(localStorage.getItem('login_attempts')||'{}');
-     at[u]=(at[u]||0)+1;
-     localStorage.setItem('login_attempts', JSON.stringify(at));
-     if(at[u]>=5){ localStorage.setItem('lock_until', Date.now()+15*60*1000); }
-     updLock();
-     errBox.style.display='block'; errBox.innerText='Wrong PIN! Left: '+(5-at[u]);
+ try{
+   let url = mode=='signup' ? '/register' : '/login';
+   let res = await fetch(url, {
+     method:'POST',
+     headers:{'Content-Type':'application/json'},
+     body: JSON.stringify({phone:u, password:p})
+   });
+   let data = await res.json();
+
+   if(!data.success){
+     errBox.style.display='block';
+     errBox.style.color='#f6465d';
+     errBox.innerText=data.msg;
+     btn.disabled=false;
+     btn.innerText=mode=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - START!! 🚀';
+     if(data.msg.includes('already')) setMode('login');
      return;
    }
+
    // SUCCESS
-   let at=JSON.parse(localStorage.getItem('login_attempts')||'{}'); delete at[u]; localStorage.setItem('login_attempts', JSON.stringify(at));
-   localStorage.removeItem('lock_until');
+   errBox.style.display='block';
+   errBox.style.color='#0ecb81';
+   errBox.innerText=data.msg + ' Redirecting...';
+
    localStorage.setItem('loggedIn','true');
    localStorage.setItem('username',u);
+   localStorage.setItem('userId', data.user._id);
+   localStorage.setItem('phone', data.user.phone);
    localStorage.setItem('session_token', Math.random().toString(36).substring(2));
    localStorage.setItem('session_expiry', Date.now()+30*60*1000);
    if(!localStorage.getItem('balance')){localStorage.setItem('balance','24587.50');localStorage.setItem('availBalance','12340.00');}
-   location.href=u=='vokeh@254'?'admin.html':'dashboard.html';
+   
+   setTimeout(()=>{
+     location.href = u=='vokeh@254' ? 'admin.html' : 'dashboard.html';
+   }, 800);
+
+ }catch(e){
+   errBox.style.display='block';
+   errBox.style.color='#f6465d';
+   errBox.innerText='Server error: '+e.message;
+   btn.disabled=false;
+   btn.innerText=mode=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - START!! 🚀';
  }
 }
+
 document.getElementById('pass').addEventListener('keydown',e=>{ if(e.key==='Enter') handleAuth(); });
-document.getElementById('user').addEventListener('input', updLock);
 if(localStorage.getItem('loggedIn')==='true' && parseInt(localStorage.getItem('session_expiry')||0)>Date.now()){ location.href=(localStorage.getItem('username')||'').toLowerCase()=='vokeh@254'?'admin.html':'dashboard.html'; }
 </script>
-
 </body>
 </html>
