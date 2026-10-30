@@ -1,0 +1,41 @@
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:#0e0e12;color:#eaeaea;overflow-x:hidden}
+.topbar{height:56px;background:#15151d;display:flex;align-items:center;justify-content:space-between;padding:0 15px;border-bottom:1px solid #222;position:sticky;top:0;z-index:100}
+.logo{font-weight:900;font-size:16px;color:#f0b90b}.logo span{color:#fff}
+.nav{display:flex;gap:12px;font-size:11px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.nav a{color:#888;text-decoration:none;padding:6px 2px}.nav a.active{color:#f0b90b;border-bottom:2px solid #f0b90b}
+.search{width:100%;padding:10px;background:#0e0e12;border:1px solid #2a2a3a;border-radius:8px;color:#fff;margin:10px 0}
+.card{background:#171725;
+  border:1px solid #222;
+  border-radius:12px;
+  padding:9px;
+  margin:9px 0}
+.input{width:100%;padding:12px;background:#0e0e12;border:1px solid #2a2a3a;border-radius:8px;color:#fff;margin:8px 0;font-size:14px}
+.buy{background:#0ecb81;color:#fff}.sell{background:#f6465d;color:#fff}
+.up{color:#0ecb81}.down{color:#f6465d}
+table{width:100%;border-collapse:collapse;font-size:13px} th{opacity:0.5;text-align:left;padding:10px 8px} td{padding:12px 8px;border-top:1px solid #1e1e2a}
+.btn{display:flex;gap:8px}.btn button{flex:1;padding:12px;border:none;border-radius:8px;font-weight:800}
+
+/* DESKTOP GRIDS */
+.dashboard-grid{display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2px;padding:5px}
+.page-padding{padding:15px}
+.wallet-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:15px}
+
+/* MOBILE - HII NDIO INAFILL SCREEN */
+@media (max-width: 768px){
+  .dashboard-grid{grid-template-columns:1fr; padding:10px}
+  .wallet-grid{grid-template-columns:1fr; padding:10px}
+  .page-padding{padding:10px}
+  .card{margin:8px 0; padding:16px}
+  .card h1{font-size:26px !important}
+  table{font-size:12px; display:block; overflow-x:auto; white-space:nowrap}
+  .topbar{height:50px; padding:0 10px}
+  .nav{font-size:10px; gap:8px}
+  /* Force vertical fill */
+  body, html{height:100%}
+  .dashboard-grid, .page-padding, .wallet-grid{min-height:calc(100vh - 50px)}
+}
+
+login-wrap{display:flex;align-items:center;justify-content:center;height:100vh;background:#0e0e12}

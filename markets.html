@@ -1,0 +1,127 @@
+<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<script>if(localStorage.getItem('loggedIn')!=='true'){location.href='index.html'}</script>
+<style>
+.top-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+.stat-mini{background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center}
+.filter-bar{display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.filter-bar button{white-space:nowrap;padding:8px 16px;border:none;border-radius:20px;font-size:11px;font-weight:800;cursor:pointer}
+.fav{color:#f0b90b;cursor:pointer}
+</style>
+</head><body>
+
+<div class="topbar"><div class="logo">TRADE<span>HUB</span> KE</div><div class="nav">
+<a href="dashboard.html">Dashboard</a><a class="active" href="markets.html">Markets</a><a href="trade.html">Trade</a><a href="wallet.html">Wallet</a><a href="portfolio.html">Portfolio</a>
+</div><div style="font-size:10px">LIVE</div></div>
+
+<div class="page-padding">
+
+
+<div class="top-stats">
+<div class="stat-mini"><div style="font-size:10px;opacity:0.5">BTC Dominance</div><div style="font-weight:800;font-size:14px">52.4%</div><div style="font-size:10px;color:#0ecb81">+0.3%</div></div>
+<div class="stat-mini"><div style="font-size:10px;opacity:0.5">24h Volume</div><div style="font-weight:800;font-size:14px">$89.2B</div><div style="font-size:10px;color:#0ecb81">+12%</div></div>
+<div class="stat-mini"><div style="font-size:10px;opacity:0.5">Active Coins</div><div style="font-weight:800;font-size:14px">2,458</div><div style="font-size:10px;opacity:0.6">Markets</div></div>
+</div>
+
+
+<input class="search" id="searchInput" placeholder="🔍 Search BTC, ETH, GOLD, EURUSD..." onkeyup="doSearch(this.value)">
+<div class="filter-bar">
+<button id="f-all" style="background:#f0b90b;color:#000" onclick="filterCat('all')">All</button>
+<button id="f-fav" style="background:#2a2a3a;color:#fff" onclick="filterCat('fav')">⭐ Favorites</button>
+<button id="f-crypto" style="background:#2a2a3a;color:#fff" onclick="filterCat('crypto')">Crypto</button>
+<button id="f-forex" style="background:#2a2a3a;color:#fff" onclick="filterCat('forex')">Forex</button>
+<button id="f-gainers" style="background:#2a2a3a;color:#fff" onclick="filterCat('gainers')">🔥 Gainers</button>
+<button id="f-losers" style="background:#2a2a3a;color:#fff" onclick="filterCat('losers')">💀 Losers</button>
+</div>
+
+
+<div class="card" style="padding:12px">
+<h3 style="margin-bottom:10px;display:flex;justify-content:space-between">🔥 Trending Now <span style="font-size:10px;opacity:0.5">Live</span></h3>
+<div style="display:flex;gap:8px;overflow-x:auto">
+<div style="min-width:120px;background:#0e0e12;padding:10px;border-radius:10px;text-align:center"><b>PEPE</b><br><span class="up" style="font-size:12px">+24.5%</span></div>
+<div style="min-width:120px;background:#0e0e12;padding:10px;border-radius:10px;text-align:center"><b>BTC</b><br><span class="up" style="font-size:12px">+1.24%</span></div>
+<div style="min-width:120px;background:#0e0e12;padding:10px;border-radius:10px;text-align:center"><b>SOL</b><br><span class="up" style="font-size:12px">+3.56%</span></div>
+<div style="min-width:120px;background:#0e0e12;padding:10px;border-radius:10px;text-align:center"><b>GOLD</b><br><span class="up" style="font-size:12px">+0.78%</span></div>
+</div>
+</div>
+
+
+<div class="card" style="padding:0;overflow:hidden">
+<div style="padding:12px;display:flex;justify-content:space-between;align-items:center">
+<h3>All Markets <span id="countMarkets" style="font-size:11px;opacity:0.5">(12)</span></h3>
+<span style="font-size:10px;opacity:0.5">Tap ⭐ to favorite</span>
+</div>
+<table id="marketTable">
+<tr><th>⭐</th><th>Symbol / Name</th><th>Price</th><th>24h %</th><th>Trade</th></tr>
+<tr class="mrow" data-cat="crypto" data-change="1.24"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>BTC/USDT</b><br><span style="font-size:10px;opacity:0.5">Bitcoin • Vol $28B</span></td><td class="price" data-sym="BTCUSDT">$40,256.78</td><td class="up">+1.24%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:BTCUSDT','BTC/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="-0.87"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>ETH/USDT</b><br><span style="font-size:10px;opacity:0.5">Ethereum • Vol $14B</span></td><td class="price" data-sym="ETHUSDT">$2,983.42</td><td class="down">-0.87%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:ETHUSDT','ETH/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="3.56"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>SOL/USDT</b><br><span style="font-size:10px;opacity:0.5">Solana • Vol $2.1B</span></td><td class="price" data-sym="SOLUSDT">$142.15</td><td class="up">+3.56%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:SOLUSDT','SOL/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="5.12"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>BNB/USDT</b><br><span style="font-size:10px;opacity:0.5">BNB • Vol $1.2B</span></td><td class="price" data-sym="BNBUSDT">$610.45</td><td class="up">+5.12%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:BNBUSDT','BNB/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="-2.34"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>XRP/USDT</b><br><span style="font-size:10px;opacity:0.5">Ripple • Vol $890M</span></td><td class="price" data-sym="XRPUSDT">$0.5234</td><td class="down">-2.34%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:XRPUSDT','XRP/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="8.45"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>DOGE/USDT</b><br><span style="font-size:10px;opacity:0.5">Dogecoin • Vol $1.5B</span></td><td class="price" data-sym="DOGEUSDT">$0.1345</td><td class="up">+8.45%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:DOGEUSDT','DOGE/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="forex" data-change="0.15"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>EUR/USD</b><br><span style="font-size:10px;opacity:0.5">Forex • Euro Dollar</span></td><td>1.0892</td><td class="up">+0.15%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('FX:EURUSD','EUR/USD')">Trade</button></td></tr>
+<tr class="mrow" data-cat="forex" data-change="0.78"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>GOLD</b><br><span style="font-size:10px;opacity:0.5">XAUUSD • Spot Gold</span></td><td>2,345.60</td><td class="up">+0.78%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('OANDA:XAUUSD','GOLD')">Trade</button></td></tr>
+<tr class="mrow" data-cat="forex" data-change="0.10"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>USD/KES</b><br><span style="font-size:10px;opacity:0.5">Forex • Dollar to KES</span></td><td>129.50</td><td class="up">+0.10%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('FX:USDKES','USD/KES')">Trade</button></td></tr>
+<tr class="mrow" data-cat="forex" data-change="-0.22"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>GBP/USD</b><br><span style="font-size:10px;opacity:0.5">Forex • Pound Dollar</span></td><td>1.2654</td><td class="down">-0.22%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('FX:GBPUSD','GBP/USD')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="12.34"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>PEPE/USDT</b><br><span style="font-size:10px;opacity:0.5">Pepe • Meme</span></td><td class="price" data-sym="PEPEUSDT">$0.00000812</td><td class="up">+12.34%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:PEPEUSDT','PEPE/USDT')">Trade</button></td></tr>
+<tr class="mrow" data-cat="crypto" data-change="-5.67"><td class="fav" onclick="toggleFav(this)">☆</td><td><b>LUNA/USDT</b><br><span style="font-size:10px;opacity:0.5">Terra • High Risk</span></td><td class="price" data-sym="LUNAUSDT">$0.4512</td><td class="down">-5.67%</td><td><button class="buy" style="padding:6px 12px;border:none;border-radius:6px;font-size:11px" onclick="goTrade('BINANCE:LUNAUSDT','LUNA/USDT')">Trade</button></td></tr>
+</table>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+<div class="card"><h4 style="font-size:12px">Top Gainer</h4><p style="font-size:18px;font-weight:800;color:#0ecb81">PEPE +12.34%</p><p style="font-size:10px;opacity:0.5">Last 24h</p></div>
+<div class="card"><h4 style="font-size:12px">Top Loser</h4><p style="font-size:18px;font-weight:800;color:#f6465d">LUNA -5.67%</p><p style="font-size:10px;opacity:0.5">Last 24h</p></div>
+</div>
+
+</div>
+
+<script>
+function goTrade(tv,sym){localStorage.setItem('selectedSymbol',tv);localStorage.setItem('selectedName',sym);location.href='trade.html';}
+function toggleFav(el){el.innerText=el.innerText==='☆'?'⭐':'☆';el.style.color=el.innerText==='⭐'?'#f0b90b':'#888';let favs=JSON.parse(localStorage.getItem('favs')||'[]');let row=el.parentElement;let sym=row.querySelector('b').innerText;if(el.innerText==='⭐'){if(!favs.includes(sym))favs.push(sym)}else{favs=favs.filter(s=>s!==sym)}localStorage.setItem('favs',JSON.stringify(favs));}
+function filterCat(cat){
+ document.querySelectorAll('.filter-bar button').forEach(b=>{b.style.background='#2a2a3a';b.style.color='#fff'});
+ document.getElementById('f-'+cat).style.background='#f0b90b';document.getElementById('f-'+cat).style.color='#000';
+ let rows=document.querySelectorAll('.mrow');
+ rows.forEach(r=>{
+   let change=parseFloat(r.dataset.change);
+   let sym=r.querySelector('b').innerText;
+   let favs=JSON.parse(localStorage.getItem('favs')||'[]');
+   if(cat==='all')r.style.display='';
+   else if(cat==='fav')r.style.display=favs.includes(sym)?'':'none';
+   else if(cat==='gainers')r.style.display=change>2?'':'none';
+   else if(cat==='losers')r.style.display=change<0?'':'none';
+   else r.style.display=r.dataset.cat===cat?'':'none';
+ });
+}
+function doSearch(v){
+ v=v.toLowerCase();
+ document.querySelectorAll('.mrow').forEach(r=>{r.style.display=r.innerText.toLowerCase().includes(v)?'':'none'});
+}
+
+async function updateLivePrices(){
+ try{
+  let syms=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','PEPEUSDT','LUNAUSDT'];
+  for(let s of syms){
+   try{
+    let res=await fetch('https://api.binance.com/api/v3/ticker/price?symbol='+s);
+    let j=await res.json();
+    let el=document.querySelector(`.price[data-sym="${s}"]`);
+    if(el){el.innerText='$'+parseFloat(j.price).toLocaleString();}
+   }catch(e){}
+  }
+ }catch(e){}
+}
+
+window.onload=()=>{
+ let favs=JSON.parse(localStorage.getItem('favs')||'[]');
+ document.querySelectorAll('.mrow').forEach(r=>{
+   let sym=r.querySelector('b').innerText;
+   if(favs.includes(sym)){r.querySelector('.fav').innerText='⭐';r.querySelector('.fav').style.color='#f0b90b'}
+ });
+ updateLivePrices();
+ setInterval(updateLivePrices, 5000);
+}
+</script>
+</body></html>

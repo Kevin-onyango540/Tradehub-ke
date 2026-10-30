@@ -1,0 +1,93 @@
+<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{background:#08080c;color:#fff;padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center;background:#12121a;padding:14px 18px;border-radius:12px;border:1px solid rgba(240,185,11,0.15);margin-bottom:16px}
+.logo{font-weight:900}.logo span{color:#f0b90b}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.card{background:#12121a;border:1px solid #1e1e2a;padding:16px;border-radius:12px;text-align:center}.card b{font-size:22px;color:#f0b90b}.card span{font-size:10px;opacity:0.6;display:block}
+.table{background:#12121a;border-radius:12px;overflow:hidden;border:1px solid #1e1e2a}
+.row{display:grid;grid-template-columns:50px 1fr 1fr 80px;gap:10px;padding:12px 14px;border-bottom:1px solid #1e1e2a;font-size:12px;align-items:center}
+.row.head{opacity:0.5;font-size:10px;font-weight:800;background:#0e0e14}
+.badge{background:rgba(14,203,129,0.15);color:#0ecb81;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800}
+.btn{padding:6px 10px;border-radius:6px;border:none;font-size:10px;font-weight:800;cursor:pointer}
+.live{position:fixed;bottom:16px;right:16px;background:#0ecb81;color:#000;padding:10px 14px;border-radius:20px;font-size:11px;font-weight:900;box-shadow:0 0 20px #0ecb81;display:none}
+</style>
+</head><body>
+<div class="top"><div class="logo">KEVIN TRADE<span>HUB</span> - ADMIN</div><div><span style="font-size:11px;opacity:0.6" id="adminUser"></span> • <a href="dashboard.html">Dashboard</a> <a href="#" onclick="localStorage.removeItem('loggedIn');location.href='index.html'" style="color:#f6465d;text-decoration:none;font-size:11px">Logout</a></div></div>
+
+<div class="grid">
+<div class="card"><b id="totalUsers">0</b><span>TOTAL USERS</span></div>
+<div class="card"><b id="newToday">0</b><span>NEW TODAY</span></div>
+<div class="card"><b id="onlineNow">1</b><span>ONLINE</span></div>
+</div>
+
+<div class="table" id="userTable">
+<div class="row head"><div>#</div><div>USERNAME</div><div>JOINED / STATUS</div><div>ACTION</div></div>
+</div>
+
+<div id="liveToast" class="live">🟢 New user signed up!</div>
+
+<script>
+if(localStorage.getItem('username')!=='vokeh@254' || localStorage.getItem('loggedIn')!=='true'){ location.href='index.html'; }
+document.getElementById('adminUser').innerText=localStorage.getItem('username');
+
+function loadUsers(){
+ let users=JSON.parse(localStorage.getItem('users')||'[]');
+ // add old single user if exists
+ let old=localStorage.getItem('username');
+ if(old && users.length==0){ users=[{username:old, passHash:'old', joined:Date.now()}]; }
+
+ document.getElementById('totalUsers').innerText=users.length;
+ document.getElementById('newToday').innerText=users.filter(u=> (Date.now()-(u.joined||0)) < 24*60*60*1000 ).length || users.length;
+ 
+ let html='<div class="row head"><div>#</div><div>USERNAME</div><div>JOINED / STATUS</div><div>ACTION</div></div>';
+ users.forEach((u,i)=>{
+   let date=u.joined? new Date(u.joined).toLocaleString() : 'Just now';
+   let isAdmin=u.username=='vokeh@254';
+   html+=`<div class="row">
+    <div>${i+1}</div>
+    <div><b>${u.username}</b> ${isAdmin?'<span class="badge">ADMIN</span>':''}</div>
+    <div><span style="opacity:0.6">${date}</span><br><span class="badge">${isAdmin?'Owner':'Active'}</span></div>
+    <div><button class="btn" style="background:#f6465d;color:#fff" onclick="deleteUser('${u.username}')">Del</button></div>
+   </div>`;
+ });
+ document.getElementById('userTable').innerHTML=html;
+}
+
+// Live detection - kila mtu akisign up
+let lastCount=JSON.parse(localStorage.getItem('users')||'[]').length;
+setInterval(()=>{
+ let now=JSON.parse(localStorage.getItem('users')||'[]').length;
+ if(now>lastCount){
+   let toast=document.getElementById('liveToast');
+   toast.style.display='block'; toast.innerText='🟢 New user! Total: '+now;
+   setTimeout(()=>toast.style.display='none',4000);
+   // sound
+   try{ new Audio('https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3').play(); }catch(e){}
+   lastCount=now;
+   loadUsers();
+ }
+},1000);
+
+function deleteUser(name){
+ if(name=='vokeh@254'){ alert('you are the admin'); return; }
+ if(!confirm('Delete '+name+'?')) return;
+ let users=JSON.parse(localStorage.getItem('users')||'[]');
+ users=users.filter(u=>u.username!==name);
+ localStorage.setItem('users', JSON.stringify(users));
+ loadUsers();
+}
+
+// add joined timestamp kwa signup - patch
+(function(){
+ let users=JSON.parse(localStorage.getItem('users')||'[]');
+ let changed=false;
+ users.forEach(u=>{ if(!u.joined){ u.joined=Date.now(); changed=true; } });
+ if(changed) localStorage.setItem('users', JSON.stringify(users));
+})();
+
+loadUsers();
+</script>
+</body></html>

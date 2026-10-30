@@ -1,0 +1,231 @@
+<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<script src="https://s3.tradingview.com/tv.js"></script>
+<style>
+.main2{display:grid;grid-template-columns:1fr 320px;height:calc(100vh - 56px)}
+.center2{display:flex;flex-direction:column;overflow-y:auto}
+#tv_chart{height:55vh;min-height:380px}
+.markets-below{padding:10px;background:#15151d;border-top:1px solid #222}
+.trade-tabs{display:flex;background:#0e0e12;border:1px solid #222;border-radius:8px;padding:3px;margin:10px 0}
+.trade-tabs button{flex:1;padding:10px;border:none;border-radius:6px;font-weight:800;font-size:12px;cursor:pointer}
+.active-buy{background:#0ecb81;color:#fff}.active-sell{background:#f6465d;color:#fff}.inactive{background:transparent;color:#888}
+.sl-tp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pos-live{padding:10px;background:#0e0e12;border-radius:8px;margin:6px 0;border-left:3px solid #0ecb81}
+@media (max-width:768px){.main2{grid-template-columns:1fr;height:auto}#tv_chart{height:45vh}.right{order:2;border-left:none;border-top:1px solid #222}}
+</style>
+<script>if(localStorage.getItem('loggedIn')!=='true'){location.href='index.html'}</script>
+</head><body>
+<div class="topbar">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px;background:#15151d;padding:10px;border-radius:10px;border:1px solid #222">
+<div style="text-align:center"><div style="font-size:9px;opacity:0.5">TOTAL</div><b id="tBal">$0</b></div>
+<div style="text-align:center"><div style="font-size:9px;opacity:0.5;color:#0ecb81">AVAILABLE</div><b id="tAvail" style="color:#0ecb81">$0</b></div>
+<div style="text-align:center"><div style="font-size:9px;opacity:0.5;color:#f0b90b">COST</div><b id="tCost" style="color:#f0b90b">$0</b></div>
+</div>
+<div style="text-align:center;font-size:11px;margin:5px;opacity:0.7" id="tRemain"></div>
+<div class="logo"> KEVIN TRADE<span>HUB</span> KE</div><div class="nav">
+<a href="dashboard.html">Dashboard</a><a class="active" href="trade.html">Trade</a><a href="portfolio.html">Portfolio</a><a href="wallet.html">Wallet</a>
+</div><div id="livePriceTop">BTC $40,256.78</div></div>
+<div class="main2">
+<div class="center2">
+<div style="padding:10px;display:flex;justify-content:space-between;background:#0e0e12;border-bottom:1px solid #222">
+<div><b id="symName">BTC/USDT</b> <span id="symPriceLive">40,256.78</span> <span style="font-size:11px;color:#0ecb81">LIVE</span></div>
+<div style="font-size:10px;opacity:0.6">H:40,512 L:39,780</div>
+</div>
+<div id="tv_chart"></div>
+<div class="markets-below">
+<h3>Markets</h3>
+<table><tr><th>Symbol</th><th>Price</th><th>24h</th><th>Action</th></tr>
+<tr><td><b>BTC/USDT</b></td><td id="p-BTCUSDT">40,256.78</td><td class="up">+1.24%</td><td><button onclick="setSym('BINANCE:BTCUSDT','BTC/USDT','BTCUSDT')" style="padding:5px 10px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">View</button></td></tr>
+<tr><td><b>ETH/USDT</b></td><td id="p-ETHUSDT">2,983.42</td><td class="down">-0.87%</td><td><button onclick="setSym('BINANCE:ETHUSDT','ETH/USDT','ETHUSDT')" style="padding:5px 10px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">View</button></td></tr>
+</table>
+<div id="livePositions"></div>
+</div>
+</div>
+<div class="right" style="background:#15151d;border-left:1px solid #222;padding:12px;overflow-y:auto">
+<div style="display:flex;justify-content:space-between"><h4>Trade</h4><span style="font-size:11px" id="availTop"></span></div>
+<div class="trade-tabs">
+<button id="btnLong" class="active-buy" onclick="setSide('long')">Buy / Long</button>
+<button id="btnShort" class="inactive" onclick="setSide('short')">Sell / Short</button>
+</div>
+<p style="font-size:11px;opacity:0.6">Leverage</p>
+<div style="display:flex;gap:6px;margin:6px 0">
+<button onclick="setLev(5)" class="lev" style="flex:1;padding:6px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">5x</button>
+<button onclick="setLev(10)" class="lev" style="flex:1;padding:6px;background:#f0b90b;color:#000;border:none;border-radius:6px">10x</button>
+<button onclick="setLev(20)" class="lev" style="flex:1;padding:6px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">20x</button>
+<button onclick="setLev(50)" class="lev" style="flex:1;padding:6px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">50x</button>
+</div>
+<p style="font-size:11px;opacity:0.6">Price</p><input class="input" id="entryPrice" value="40,256.78" oninput="calcCost()">
+<p style="font-size:11px;opacity:0.6">Amount (BTC)</p><input type="number" id="amount" oninput="calcCost()" value="0.01" step="0.01">
+<div style="display:flex;gap:6px;margin:6px 0">
+<button onclick="pct(25)" style="flex:1;padding:6px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">25%</button>
+<button onclick="pct(50)" style="flex:1;padding:6px;background:#2a2a3a;color:#fff;border:none;border-radius:6px">50%</button>
+<button onclick="pct(100)" style="flex:1;padding:6px;background:#f0b90b;color:#000;border:none;border-radius:6px">100%</button>
+</div>
+<div class="sl-tp">
+<div><p style="font-size:11px;opacity:0.6">Take Profit</p><input class="input" id="tp" type="number" placeholder="e.g 41000"></div>
+<div><p style="font-size:11px;opacity:0.6">Stop Loss</p><input class="input" id="sl" type="number" placeholder="e.g 39500"></div>
+</div>
+<p style="font-size:10px;opacity:0.5;margin:6px 0">TP/SL optional - auto close</p>
+<div style="background:#0e0e12;padding:10px;border-radius:8px;font-size:12px;margin:10px 0">
+<div style="display:flex;justify-content:space-between"><span>Est. Cost:</span><b id="estCost">$402.56</b></div>
+<div style="display:flex;justify-content:space-between"><span>Liq:</span><span style="color:#f6465d" id="liqPrice">~$36,500</span></div>
+</div>
+<button id="mainTradeBtn" style="width:100%;padding:15px;border:none;border-radius:10px;font-weight:900;font-size:16px;background:#0ecb81;color:#fff" onclick="openTradeNow()">Buy / Long BTC/USDT</button>
+<div id="activeTrades" style="margin-top:15px"></div>
+</div>
+</div>
+
+<div id="tradeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;padding:15px;overflow:auto">
+<div style="background:#15151d;border:1px solid #333;border-radius:16px;max-width:400px;margin:20px auto;padding:15px">
+<div style="display:flex;justify-content:space-between"><b id="mSym">BTC/USDT LONG</b><span id="mLivePrice" style="color:#f0b90b;font-weight:900">$0</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;font-size:11px;text-align:center">
+<div style="background:#0e0e12;padding:8px;border-radius:8px">Entry<br><b id="mEntry">0</b></div>
+<div style="background:#0e0e12;padding:8px;border-radius:8px">Amount<br><b id="mAmt">0</b></div>
+<div style="background:#0e0e12;padding:8px;border-radius:8px">Cost<br><b id="mCost">0</b></div>
+</div>
+<div style="background:#0e0e12;border-radius:10px;padding:12px;text-align:center">
+<div style="font-size:10px;opacity:0.5">LIVE PnL</div>
+<div id="mPnl" style="font-size:28px;font-weight:900;color:#0ecb81">+$0.00</div>
+<div id="mPnlPct" style="font-size:11px;opacity:0.6">0%</div>
+</div>
+<div style="font-size:11px;display:flex;justify-content:space-between;margin:8px 0"><span>TP: <b id="mTP">--</b></span><span>SL: <b id="mSL">--</b></span><span>Now: <b id="mNow">0</b></span></div>
+<div style="background:#0e0e12;height:6px;border-radius:10px;overflow:hidden;margin:8px 0"><div id="mBar" style="width:50%;height:100%;background:#0ecb81"></div></div>
+<button onclick="closeCurrentTrade(false)" style="width:100%;padding:14px;background:#f6465d;color:#fff;border:none;border-radius:10px;font-weight:900;margin-top:10px">CLOSE TRADE</button>
+<button onclick="document.getElementById('tradeModal').style.display='none'" style="width:100%;padding:10px;background:#222;color:#fff;border:none;border-radius:10px;margin-top:8px">Hide - Chart</button>
+</div>
+</div>
+
+<div id="resultModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;padding:15px;">
+<div style="background:#15151d;border:1px solid #333;border-radius:16px;max-width:350px;margin:80px auto;padding:20px;text-align:center">
+<div id="rIcon" style="font-size:40px">✅</div>
+<b id="rTitle" style="font-size:18px">TRADE CLOSED</b>
+<div style="background:#0e0e12;border-radius:10px;padding:12px;margin:12px 0">
+<div style="font-size:10px;opacity:0.5">Closed Value</div>
+<div id="rValue" style="font-size:20px;font-weight:900">$0.00</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:11px"><div>Entry<br><b id="rEntry">0</b></div><div>Close<br><b id="rClose">0</b></div></div>
+</div>
+<div id="rPnl" style="font-size:32px;font-weight:900;color:#0ecb81">+$0.00</div>
+<div id="rReason" style="font-size:11px;opacity:0.6;margin:8px 0"></div>
+<button onclick="document.getElementById('resultModal').style.display='none'" style="width:100%;padding:12px;background:#0ecb81;color:#000;border:none;border-radius:10px;font-weight:900">SAWA</button>
+</div>
+</div>
+
+<script>
+let side='long', lev=10, curSymbol='BTCUSDT', curPrice=40256.78, curSymName='BTC/USDT';
+let currentTradeIndex=null, liveInterval=null;
+function getPrice(){ return parseFloat(document.getElementById('entryPrice').value.replace(/,/g,''))||curPrice; }
+function calcCost(){
+ let amt=parseFloat(document.getElementById('amount').value||0.01);
+ let price=getPrice();
+ let cost=(amt*price)/lev; if(cost<1) cost=amt*price;
+ if(isNaN(cost)) cost=0;
+ document.getElementById('tCost').innerText='$'+cost.toFixed(2);
+ document.getElementById('estCost').innerText='$'+cost.toFixed(2);
+ let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
+ let remain=avail-cost;
+ document.getElementById('tRemain').innerHTML='Balance itakayobaki: <b style="color:'+(remain<0?'#f6465d':'#0ecb81')+'">$'+remain.toFixed(2)+'</b> '+(remain<0?'❌ Haina':'✅');
+ return cost;
+}
+function updateTradeBal(){
+ let b=parseFloat(localStorage.getItem('balance')||'24587');
+ let a=parseFloat(localStorage.getItem('availBalance')||'12340');
+ document.getElementById('tBal').innerText='$'+b.toFixed(2);
+ document.getElementById('tAvail').innerText='$'+a.toFixed(2);
+ document.getElementById('availTop').innerText='Avail $'+a.toFixed(2);
+ calcCost();
+}
+function setSide(s){ side=s; document.getElementById('btnLong').className=s==='long'?'active-buy':'inactive'; document.getElementById('btnShort').className=s==='short'?'active-sell':'inactive'; let btn=document.getElementById('mainTradeBtn'); btn.style.background=s==='long'?'#0ecb81':'#f6465d'; btn.innerText=(s==='long'?'Buy / Long ':'Sell / Short ')+curSymName; updateLiq(); }
+function setLev(l){ lev=l; document.querySelectorAll('.lev').forEach(b=>{b.style.background=b.innerText==l+'x'?'#f0b90b':'#2a2a3a'; b.style.color=b.innerText==l+'x'?'#000':'#fff';}); updateLiq(); calcCost(); }
+function pct(p){ let avail=parseFloat(localStorage.getItem('availBalance')||'12340'); let price=getPrice(); let amt=(avail*p/100)/price; document.getElementById('amount').value=amt.toFixed(5); calcCost(); }
+function updateLiq(){ let entry=getPrice(); let liq=side==='long'?entry*(1-0.8/lev):entry*(1+0.8/lev); document.getElementById('liqPrice').innerText='~$'+liq.toFixed(2); }
+function setSym(tv,sym,bin){ curSymName=sym; curSymbol=bin; document.getElementById('symName').innerText=sym; new TradingView.widget({autosize:true,symbol:tv,interval:"1",timezone:"Africa/Nairobi",theme:"dark",style:"1",container_id:"tv_chart"}); setSide(side); }
+
+function openTradeNow(){
+ let price=getPrice();
+ let amount=parseFloat(document.getElementById('amount').value||0.01);
+ let tp=parseFloat(document.getElementById('tp').value||0);
+ let sl=parseFloat(document.getElementById('sl').value||0);
+ if(amount<=0){ alert('Weka amount'); return; }
+ let cost=(amount*price)/lev; if(cost<1) cost=amount*price;
+ let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
+ if(cost>avail){ alert('Avail haitoshi!'); return; }
+ let locked=parseFloat(localStorage.getItem('lockedBalance')||'0');
+ localStorage.setItem('availBalance',avail-cost);
+ localStorage.setItem('lockedBalance',locked+cost);
+ localStorage.setItem('lastPrice',price);
+ let trades=JSON.parse(localStorage.getItem('trades')||'[]');
+ let trade={id:Date.now(),symbol:curSymName,side:side,amount:amount,entry:price,cost:cost,lev:lev,sl:sl,tp:tp};
+ trades.push(trade); localStorage.setItem('trades',JSON.stringify(trades));
+ currentTradeIndex=trades.length-1;
+ updateTradeBal();
+ document.getElementById('mSym').innerText=curSymName+' '+side.toUpperCase()+' x'+lev;
+ document.getElementById('mEntry').innerText=price.toFixed(2);
+ document.getElementById('mAmt').innerText=amount;
+ document.getElementById('mCost').innerText='$'+cost.toFixed(2);
+ document.getElementById('mTP').innerText=tp||'--';
+ document.getElementById('mSL').innerText=sl||'--';
+ document.getElementById('tradeModal').style.display='block';
+ if(liveInterval) clearInterval(liveInterval);
+ liveInterval=setInterval(()=>{
+  let last=parseFloat(localStorage.getItem('lastPrice')||price);
+  let r=Math.random();
+  let move=0;
+  if(r < 0.45){ move = - (Math.random()*150 + 10); }
+  else if(r < 0.90){ move = Math.random()*150 + 10; }
+  else { move = (Math.random()-0.5)*20; }
+  let p=last+move;
+  if(p<1000) p=last+Math.abs(move);
+  localStorage.setItem('lastPrice',p); curPrice=p;
+  document.getElementById('mLivePrice').innerText='$'+p.toFixed(2);
+  document.getElementById('mNow').innerText=p.toFixed(2);
+  document.getElementById('symPriceLive').innerText=p.toFixed(2);
+  let tr=JSON.parse(localStorage.getItem('trades')||'[]')[currentTradeIndex]; if(!tr) return;
+  let pnl=tr.side=='long'?(p-tr.entry)*tr.amount:(tr.entry-p)*tr.amount;
+  let pct=(pnl/tr.cost)*100;
+  document.getElementById('mPnl').innerText=(pnl>=0?'+':'')+'$'+pnl.toFixed(2);
+  document.getElementById('mPnl').style.color=pnl>=0?'#0ecb81':'#f6465d';
+  document.getElementById('mPnlPct').innerText=(pct>=0?'+':'')+pct.toFixed(2)+'%';
+  document.getElementById('mBar').style.width=Math.min(100,50+Math.abs(pct))+'%';
+  document.getElementById('mBar').style.background=pnl>=0?'#0ecb81':'#f6465d';
+  let hitTP=false, hitSL=false;
+  if(tr.tp>0){ if(tr.side=='long'&&p>=tr.tp) hitTP=true; if(tr.side=='short'&&p<=tr.tp) hitTP=true; }
+  if(tr.sl>0){ if(tr.side=='long'&&p<=tr.sl) hitSL=true; if(tr.side=='short'&&p>=tr.sl) hitSL=true; }
+  if(hitTP||hitSL){ closeCurrentTrade(true, hitTP?'TP':'SL'); }
+ },1000);
+}
+function closeCurrentTrade(auto=false, reason='Manual'){
+ let trades=JSON.parse(localStorage.getItem('trades')||'[]');
+ let idx=currentTradeIndex!==null?currentTradeIndex:trades.length-1;
+ let t=trades[idx]; if(!t) return;
+ let price=parseFloat(localStorage.getItem('lastPrice')||t.entry);
+ let pnl=t.side=='long'?(price-t.entry)*t.amount:(t.entry-price)*t.amount;
+ let closeValue=t.amount*price;
+ let bal=parseFloat(localStorage.getItem('balance')||'24587');
+ let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
+ let locked=parseFloat(localStorage.getItem('lockedBalance')||'0');
+ localStorage.setItem('balance',bal+pnl);
+ localStorage.setItem('availBalance',avail+t.cost+pnl);
+ localStorage.setItem('lockedBalance',locked-t.cost);
+ let hist=JSON.parse(localStorage.getItem('closedTrades')||'[]');
+ hist.push({...t,closePrice:price,pnl:pnl,closeValue:closeValue,reason:reason,closeTime:new Date().toLocaleString()});
+ localStorage.setItem('closedTrades',JSON.stringify(hist));
+ trades.splice(idx,1); localStorage.setItem('trades',JSON.stringify(trades));
+ if(liveInterval) clearInterval(liveInterval);
+ document.getElementById('tradeModal').style.display='none';
+ document.getElementById('rIcon').innerText=pnl>=0?'✅':'❌';
+ document.getElementById('rTitle').innerText=pnl>=0?'PROFIT':'LOSS';
+ document.getElementById('rTitle').style.color=pnl>=0?'#0ecb81':'#f6465d';
+ document.getElementById('rValue').innerText='$'+closeValue.toFixed(2);
+ document.getElementById('rEntry').innerText='$'+t.entry.toFixed(2);
+ document.getElementById('rClose').innerText='$'+price.toFixed(2);
+ document.getElementById('rPnl').innerText=(pnl>=0?'+':'')+'$'+pnl.toFixed(2);
+ document.getElementById('rPnl').style.color=pnl>=0?'#0ecb81':'#f6465d';
+ document.getElementById('rReason').innerText=(auto?'🔔 Auto '+reason:'Manual')+' | Balance $'+(bal+pnl).toFixed(2);
+ document.getElementById('resultModal').style.display='block';
+ updateTradeBal();
+}
+setSym('BINANCE:BTCUSDT','BTC/USDT','BTCUSDT');
+updateTradeBal(); setInterval(updateTradeBal,1000);
+</script>
+</body></html>

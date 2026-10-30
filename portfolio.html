@@ -1,0 +1,178 @@
+<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<script>if(localStorage.getItem('loggedIn')!=='true'){location.href='index.html'}</script>
+<style>
+.p-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:10px 0}
+.p-stat{background:#15151d;border:1px solid #222;border-radius:12px;padding:14px}
+.alloc-bar{height:8px;background:#0e0e12;border-radius:10px;display:flex;overflow:hidden;margin:8px 0}
+</style>
+</head><body>
+  
+
+<div class="topbar"><div class="logo">TRADE<span>HUB</span> KE</div><div class="nav">
+<a href="dashboard.html">Dashboard</a><a href="markets.html">Markets</a><a href="trade.html">Trade</a><a class="active" href="portfolio.html">Portfolio</a><a href="wallet.html">Wallet</a>
+</div><div style="font-size:11px" id="topBal">Bal $0.0</div></div>
+
+<div class="page-padding">
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+<div style="background:#15151d;padding:10px;border-radius:10px;text-align:center"><div style="font-size:9px;opacity:.5">TOTAL</div><b id="pTotal">$0</b></div>
+<div style="background:#15151d;padding:10px;border-radius:10px;text-align:center"><div style="font-size:9px;opacity:.5;color:#0ecb81">AVAIL</div><b id="pAvail" style="color:#0ecb81">$0</b></div>
+<div style="background:#15151d;padding:10px;border-radius:10px;text-align:center"><div style="font-size:9px;opacity:.5">LIVE PnL</div><b id="pPnl">$0.00</b></div>
+</div>
+<div id="liveTrades"></div>
+</div>
+
+<!-- 2. ALLOCATION + ASSETS -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="card">
+<h3>Asset Allocation</h3>
+<div class="alloc-bar"><div style="width:55%;background:#f0b90b"></div><div style="width:25%;background:#0ecb81"></div><div style="width:15%;background:#3a6ff8"></div><div style="width:5%;background:#f6465d"></div></div>
+<div style="font-size:12px">
+<div style="display:flex;justify-content:space-between;padding:6px 0"><span><span style="color:#f0b90b">●</span> BTC 55%</span><b>$13,523</b></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0"><span><span style="color:#0ecb81">●</span> ETH 25%</span><b>$6,146</b></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0"><span><span style="color:#3a6ff8">●</span> SOL 15%</span><b>$3,688</b></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0"><span><span style="color:#f6465d">●</span> Others 5%</span><b>$1,229</b></div>
+</div>
+</div>
+
+<div class="card">
+<h3>My Assets</h3>
+<div id="myAssets">
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e1e2a"><div><b>BTC</b><br><span style="font-size:10px;opacity:0.5">0.3342 BTC</span></div><div style="text-align:right"><b>$13,523.00</b><br><span style="font-size:11px;color:#0ecb81">+2.4%</span></div></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e1e2a"><div><b>ETH</b><br><span style="font-size:10px;opacity:0.5">2.06 ETH</span></div><div style="text-align:right"><b>$6,146.00</b><br><span style="font-size:11px;color:#f6465d">-1.2%</span></div></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0"><div><b>SOL</b><br><span style="font-size:10px;opacity:0.5">26 SOL</span></div><div style="text-align:right"><b>$3,688.00</b><br><span style="font-size:11px;color:#0ecb81">+5.1%</span></div></div>
+</div>
+<button onclick="location.href='markets.html'" style="width:100%;margin-top:10px;padding:8px;background:#2a2a3a;color:#fff;border:none;border-radius:8px;font-size:11px">Buy More Assets +</button>
+</div>
+</div>
+
+<!-- 3. OPEN POSITIONS LIVE - HII NDIO CORE -->
+<div class="card" style="margin-top:10px">
+<div style="display:flex;justify-content:space-between"><h3>Open Positions - LIVE P/L</h3><span style="font-size:10px;opacity:0.5">● LIVE</span></div>
+<div id="openPositionsLive" style="margin-top:10px"></div>
+</div>
+
+<!-- 4. CLOSED TRADES HISTORY + PERFORMANCE -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+<div class="card">
+<h3>Performance</h3>
+<div style="font-size:12px;margin-top:10px">
+<div style="display:flex;justify-content:space-between;padding:8px;background:#0e0e12;border-radius:8px;margin:5px 0"><span>Total Trades</span><b id="perfTotal">0</b></div>
+<div style="display:flex;justify-content:space-between;padding:8px;background:#0e0e12;border-radius:8px;margin:5px 0"><span>Win Rate</span><b style="color:#0ecb81" id="perfWin">0%</b></div>
+<div style="display:flex;justify-content:space-between;padding:8px;background:#0e0e12;border-radius:8px;margin:5px 0"><span>Best Trade</span><b style="color:#0ecb81" id="perfBest">+$0</b></div>
+<div style="display:flex;justify-content:space-between;padding:8px;background:#0e0e12;border-radius:8px;margin:5px 0"><span>Worst Trade</span><b style="color:#f6465d" id="perfWorst">$0</b></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Closed History</h3>
+<div id="closedHistory" style="max-height:250px;overflow-y:auto;margin-top:10px"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+function loadPortfolio(){
+  let bal=parseFloat(localStorage.getItem('balance')||'24587.32');
+  let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
+  let locked=parseFloat(localStorage.getItem('lockedBalance')||'12246');
+  let trades=JSON.parse(localStorage.getItem('trades')||'[]');
+  let closed=JSON.parse(localStorage.getItem('closedTrades')||'[]');
+  
+  document.getElementById('totalBal').innerText='$'+bal.toFixed(2);
+  document.getElementById('availBal').innerText='$'+avail.toFixed(2);
+  document.getElementById('lockedBal').innerText='$'+locked.toFixed(2);
+  document.getElementById('topBal').innerText='Bal $'+bal.toFixed(0);
+  document.getElementById('openCount').innerText=trades.length+' open positions';
+
+  // OPEN POSITIONS LIVE
+  let curPrice=parseFloat(localStorage.getItem('lastPrice')||'40256');
+  let openDiv=document.getElementById('openPositionsLive');
+  if(trades.length===0){
+    openDiv.innerHTML='<p style="font-size:12px;opacity:0.5;padding:15px;text-align:center">No open positions.<br><a href="trade.html" style="color:#f0b90b">Go Trade →</a></p>';
+  } else {
+    let html='';
+    trades.forEach(t=>{
+      let pnl=t.side==='long'?(curPrice-t.entry)*t.amount*t.lev:(t.entry-curPrice)*t.amount*t.lev;
+      let col=pnl>=0?'#0ecb81':'#f6465d';
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#0e0e12;border-radius:10px;margin:6px 0;border-left:3px solid ${col}"><div><b>${t.symbol} ${t.side.toUpperCase()} ${t.lev}x</b><br><span style="font-size:10px;opacity:0.6">Entry ${t.entry} • ${t.amount} • Cost $${t.cost?.toFixed(0)||0}</span></div><div style="text-align:right"><b style="color:${col};font-size:16px">${pnl>=0?'+':''}$${pnl.toFixed(2)}</b><br><button onclick="closeFromPort(${t.id})" style="padding:4px 8px;background:${col};color:#fff;border:none;border-radius:6px;font-size:10px;margin-top:4px">Close</button></div></div>`;
+    });
+    openDiv.innerHTML=html;
+  }
+
+  // CLOSED HISTORY
+  let closedDiv=document.getElementById('closedHistory');
+  if(closed.length===0){
+    closedDiv.innerHTML='<p style="font-size:11px;opacity:0.5">Bado hujafunga trade yoyote</p>';
+  } else {
+    let html='';
+    let totalPnl=0, wins=0, best=-999999, worst=999999;
+    closed.slice(-10).reverse().forEach(c=>{
+      totalPnl+=c.pnl||0;
+      if((c.pnl||0)>0) wins++;
+      if((c.pnl||0)>best) best=c.pnl;
+      if((c.pnl||0)<worst) worst=c.pnl;
+      let col=(c.pnl||0)>=0?'#0ecb81':'#f6465d';
+      html+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e1e2a;font-size:12px"><span>${c.symbol} ${c.side?.toUpperCase()}<br><span style="font-size:10px;opacity:0.5">${c.time||''}</span></span><b style="color:${col}">${c.pnl>=0?'+':''}$${c.pnl?.toFixed(2)}</b></div>`;
+    });
+    closedDiv.innerHTML=html;
+    document.getElementById('perfTotal').innerText=closed.length;
+    document.getElementById('perfWin').innerText=closed.length?((wins/closed.length)*100).toFixed(0)+'%':'0%';
+    document.getElementById('perfBest').innerText='+$'+(best>-999999?best.toFixed(2):0);
+    document.getElementById('perfWorst').innerText='$'+(worst<999999?worst.toFixed(2):0);
+    document.getElementById('totalPnl').innerText=(totalPnl>=0?'+ $': '- $')+Math.abs(totalPnl).toFixed(2)+' ('+(totalPnl>=0?'+':'')+(totalPnl/bal*100).toFixed(2)+'%) Today';
+    document.getElementById('totalPnl').style.color=totalPnl>=0?'#0ecb81':'#f6465d';
+  }
+}
+
+function closeFromPort(id){
+  if(!confirm('Funga hii trade?')) return;
+  let trades=JSON.parse(localStorage.getItem('trades')||'[]');
+  let tr=trades.find(t=>t.id===id);
+  if(tr){
+    let curPrice=parseFloat(localStorage.getItem('lastPrice')||tr.entry);
+    let pnl=tr.side==='long'?(curPrice-tr.entry)*tr.amount*tr.lev:(tr.entry-curPrice)*tr.amount*tr.lev;
+    let bal=parseFloat(localStorage.getItem('balance')||'24587');
+    let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
+    let locked=parseFloat(localStorage.getItem('lockedBalance')||'12246');
+    bal+=pnl; avail+=tr.cost+pnl; locked-=tr.cost;
+    localStorage.setItem('balance',bal); localStorage.setItem('availBalance',avail); localStorage.setItem('lockedBalance',locked);
+    let closed=JSON.parse(localStorage.getItem('closedTrades')||'[]');
+    closed.push({...tr,pnl:pnl,time:new Date().toLocaleString(),status:'Closed'});
+    localStorage.setItem('closedTrades',JSON.stringify(closed));
+  }
+  localStorage.setItem('trades',JSON.stringify(trades.filter(t=>t.id!==id)));
+  loadPortfolio();
+}
+
+loadPortfolio();
+setInterval(loadPortfolio,2000);
+</script>
+
+<script>
+function getPrice(){return parseFloat(localStorage.getItem('lastPrice')||'40000');}
+function renderLive(){
+ let trades=JSON.parse(localStorage.getItem('trades')||'[]');let bal=parseFloat(localStorage.getItem('balance')||0);let avail=parseFloat(localStorage.getItem('availBalance')||0);let locked=parseFloat(localStorage.getItem('lockedBalance')||0);let price=getPrice();
+ document.getElementById('pTotal').innerText='$'+bal.toFixed(2);document.getElementById('pAvail').innerText='$'+avail.toFixed(2);
+ let html='',totalPnl=0;
+ if(trades.length==0) html='<p style="text-align:center;opacity:.5;padding:30px">Hakuna trade open</p>';
+ else trades.forEach((t,i)=>{
+  let pnl=t.side=='long'?(price-t.entry)*t.amount:(t.entry-price)*t.amount;totalPnl+=pnl;
+  if((t.sl && ((t.side=='long'&&price<=t.sl)||(t.side=='short'&&price>=t.sl)))||(t.tp && ((t.side=='long'&&price>=t.tp)||(t.side=='short'&&price<=t.tp)))){
+   let newBal=bal+pnl;localStorage.setItem('balance',newBal);localStorage.setItem('availBalance',avail+t.cost+pnl);localStorage.setItem('lockedBalance',locked-t.cost);
+   let hist=JSON.parse(localStorage.getItem('closedTrades')||'[]');hist.push({...t,closePrice:price,pnl:pnl});localStorage.setItem('closedTrades',JSON.stringify(hist));trades.splice(i,1);localStorage.setItem('trades',JSON.stringify(trades));alert('Trade closed SL/TP PnL $'+pnl.toFixed(2));location.reload();return;
+  }
+  html+=`<div style="background:#15151d;border:1px solid #222;border-radius:12px;padding:12px;margin:8px 0"><div style="display:flex;justify-content:space-between"><b>${t.symbol} <span style="font-size:10px;padding:2px 6px;border-radius:6px;background:${t.side=='long'?'#0ecb81':'#f6465d'};color:#000">${t.side.toUpperCase()}</span></b><span style="font-size:10px;opacity:.5">${t.time}</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;margin:8px 0;font-size:11px"><div>Entry<br><b>${t.entry}</b></div><div>Live<br><b style="color:#f0b90b">${price}</b></div><div>Cost<br><b>$${t.cost.toFixed(2)}</b></div></div><div style="display:flex;justify-content:space-between"><span style="font-size:11px">SL:${t.sl||'--'} TP:${t.tp||'--'}</span><b style="color:${pnl>=0?'#0ecb81':'#f6465d'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</b></div><button onclick="closeTrade(${i})" style="width:100%;margin-top:8px;padding:10px;background:#222;border:none;border-radius:8px;color:#fff;font-weight:800">CLOSE TRADE</button></div>`;
+ });
+ document.getElementById('liveTrades').innerHTML=html;document.getElementById('pPnl').innerText=(totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(2);document.getElementById('pPnl').style.color=totalPnl>=0?'#0ecb81':'#f6465d';
+}
+function closeTrade(idx){
+ let trades=JSON.parse(localStorage.getItem('trades')||'[]');let t=trades[idx];let price=getPrice();let pnl=t.side=='long'?(price-t.entry)*t.amount:(t.entry-price)*t.amount;let bal=parseFloat(localStorage.getItem('balance')||0);let avail=parseFloat(localStorage.getItem('availBalance')||0);let locked=parseFloat(localStorage.getItem('lockedBalance')||0);
+ localStorage.setItem('balance',bal+pnl);localStorage.setItem('availBalance',avail+t.cost+pnl);localStorage.setItem('lockedBalance',locked-t.cost);let hist=JSON.parse(localStorage.getItem('closedTrades')||'[]');hist.push({...t,closePrice:price,pnl:pnl});localStorage.setItem('closedTrades',JSON.stringify(hist));trades.splice(idx,1);localStorage.setItem('trades',JSON.stringify(trades));alert((pnl>=0?'PROFIT ':'LOSS ')+'$'+pnl.toFixed(2));location.reload();
+}
+renderLive();setInterval(renderLive,1000);
+</script>
+</body></html>

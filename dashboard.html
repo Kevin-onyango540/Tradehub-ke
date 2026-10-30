@@ -1,0 +1,233 @@
+<!DOCTYPE html><html><head><script>
+if(localStorage.getItem('loggedIn') !== 'true'){
+  window.location.href = 'index.html';
+}
+</script><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="style.css"></head><body>
+<div class="topbar"><div class="logo">KEVIN TRADE<span>HUB</span> KE</div><div class="nav">
+<a class="active" href="index.html">Dashboard</a><a href="markets.html">Markets</a><a href="trade.html">Trade</a><a href="wallet.html">Wallet</a><a href="portfolio.html">Portfolio</a> <a href="analysis.html">Analysis</a> <a href="admin.html"></a>
+</div><div style="font-size:10px">USD | Topnotch</div></div>
+
+<div class="dashboard-grid">
+<div class="card" style="height: 270px">
+  <p style="opacity:0.6;font-size:12px">Total Balance</p><h1 style="color:#0ecb81;font-size:28px" id="totalBal">$0.00</h1><p style="font-size:12px;opacity:0.6">+$582.31 Today</p><button class="buy" style="width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px" onclick="location.href='wallet.html'">Deposit</button><br><br><button class="sell" style="width:100%;padding:10px;border:none;border-radius:8px;margin-top:10px" onclick="location.href='wallet.html'">Withdraw</button><br><br><br>
+
+  <button onclick="location.href='trade.html'" style="width:100%;padding:14px;background:linear-gradient(90deg,#f00b0b,#f8d12f);color:#000;border:none;border-radius:12px;font-weight:900;font-size:14px;cursor:pointer">
+🚀 GO TO TRADE →
+</button>
+</div>
+<div class="card" style="height: 125px"><p style="opacity:0.6;font-size:12px">Open P/L</p><h1 style="color:#0ecb81;font-size:28px" id="openPL">+$342.10</h1><p style="font-size:12px;opacity:0.6">3 Positions Active</p><button style="width:100%;padding:10px;background:#2a2a3a;color:#fff;border:none;border-radius:8px;margin-top:10px" onclick="location.href='portfolio.html'">View Positions</button></div>
+
+
+
+<div class="card" style="height: 125px"><p style="opacity:0.6;font-size:12px">Quick Action</p><h3 style="margin:8px 0">M-Pesa Deposit</h3><button class="buy" style="width:100%;padding:12px;border:none;border-radius:8px;font-weight:800" onclick="location.href='wallet.html'">M-Pesa Deposit →</button><p style="font-size:10px;opacity:0.5;margin-top:8px">Instant • Min KES 1290.67</p></div>
+</div>
+
+<div class="page-padding">
+  <div style="margin:10px 0">
+<button onclick="location.href='trade.html'" style="width:100%;padding:14px;background:linear-gradient(90deg,#f0b90b,#2f43f8);color:#000;border:none;border-radius:12px;font-weight:900;font-size:14px;cursor:pointer">
+🚀 GO TO TRADE →
+</button>
+</div>
+<div class="card"><h3 style="margin-bottom:12px">Portfolio - My Assets</h3>
+<table><tr><th>Asset</th><th>Amount</th><th>Value</th><th>P/L</th></tr>
+<tr><td><b>BTC</b> 0.1523</td><td>BTC</td><td>$6,120.45</td><td class="up">+2.34%</td></tr>
+<tr><td><b>ETH</b> 1.84</td><td>ETH</td><td>$5,489.49</td><td class="down">-0.87%</td></tr>
+<tr><td><b>SOL</b> 12.5</td><td>SOL</td><td>$1,776.00</td><td class="up">+3.56%</td></tr>
+</table>
+</div>
+
+<div class="card" id="recentTradesCard">
+<h3 style="display:flex;justify-content:space-between"><span>Recent Trades - LIVE</span><span style="font-size:10px;opacity:0.5" id="liveDot">● LIVE</span></h3>
+<div id="recentTradesLive" style="margin-top:10px">
+<p style="font-size:12px;opacity:0.5;padding:10px 0">Loading trades...</p>
+</div>
+<div style="display:flex;gap:8px;margin-top:12px">
+<button onclick="location.href='trade.html'" style="flex:1;padding:8px;background:#2a2a3a;color:#fff;border:none;border-radius:6px;font-size:11px">Go Trade →</button>
+<button onclick="clearHistory()" style="flex:1;padding:8px;background:#15151d;border:1px solid #333;color:#888;border-radius:6px;font-size:11px">Clear</button>
+</div>
+<!-- === ONGEZA HII - DASHBOARD IKO IMEJAA SASA === -->
+
+<!-- 1. MARKET OVERVIEW MINI -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:12px">
+<div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">BTC</div><div style="font-weight:800;font-size:13px" class="livePrice" data-sym="BTCUSDT">$40,256</div><div style="font-size:10px;color:#0ecb81">+1.24%</div></div>
+<div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">ETH</div><div style="font-weight:800;font-size:13px" class="livePrice" data-sym="ETHUSDT">$2,983</div><div style="font-size:10px;color:#f6465d">-0.87%</div></div>
+<div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">SOL</div><div style="font-weight:800;font-size:13px" class="livePrice" data-sym="SOLUSDT">$142</div><div style="font-size:10px;color:#0ecb81">+3.56%</div></div>
+<div style="background:#15151d;border:1px solid #222;border-radius:10px;padding:10px;text-align:center"><div style="font-size:10px;opacity:0.5">GOLD</div><div style="font-weight:800;font-size:13px">$2,345</div><div style="font-size:10px;color:#0ecb81">+0.78%</div></div>
+</div>
+
+<!-- 2. OPEN POSITIONS PREVIEW + ACCOUNT HEALTH -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+<div class="card">
+<div style="display:flex;justify-content:space-between"><h3>Open Positions</h3><span id="openCountDash" style="font-size:10px;background:#f0b90b;color:#000;padding:2px 8px;border-radius:10px;font-weight:800">0</span></div>
+<div id="openPreview" style="margin-top:10px"><p style="font-size:11px;opacity:0.5;text-align:center;padding:10px">No open trades<br><a href="trade.html" style="color:#f0b90b">Open one →</a></p></div>
+</div>
+
+<div class="card">
+<h3>Account Health</h3>
+<div style="margin-top:10px;font-size:12px">
+<div style="display:flex;justify-content:space-between;padding:8px 0"><span>Balance</span><b id="dashBal">$24,587</b></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0"><span>Avail</span><b id="dashAvail" style="color:#0ecb81">$12,340</b></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0"><span>Locked</span><b id="dashLocked">$12,246</b></div>
+<div style="margin-top:8px"><div style="font-size:10px;opacity:0.6;margin-bottom:4px">Margin Level</div><div style="height:8px;background:#0e0e12;border-radius:10px"><div id="marginBar" style="width:85%;height:100%;background:#0ecb81;border-radius:10px"></div></div><div style="font-size:10px;margin-top:4px;color:#0ecb81" id="marginTxt">85% - Safe</div></div>
+</div>
+</div>
+</div>
+
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+<div class="card" style="text-align:center">
+<h3>Today's P/L</h3>
+<div style="font-size:28px;font-weight:900;margin:10px 0" id="todayPnl">+$0.00</div>
+<div style="font-size:11px;opacity:0.6">Total profit today from closed trades</div>
+<div style="display:flex;gap:6px;margin-top:10px">
+<div style="flex:1;background:#0e0e12;padding:8px;border-radius:8px"><div style="font-size:10px;opacity:0.5">Wins</div><b style="color:#0ecb81" id="winsDash">0</b></div>
+<div style="flex:1;background:#0e0e12;padding:8px;border-radius:8px"><div style="font-size:10px;opacity:0.5">Losses</div><b style="color:#f6465d" id="lossDash">0</b></div>
+<div style="flex:1;background:#0e0e12;padding:8px;border-radius:8px"><div style="font-size:10px;opacity:0.5">Win Rate</div><b id="winRateDash">0%</b></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Quick Trade</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+<button onclick="quickTrade('BINANCE:BTCUSDT','BTC/USDT')" style="padding:12px;background:#f0b90b;border:none;border-radius:10px;font-weight:800">₿ BTC</button>
+<button onclick="quickTrade('BINANCE:ETHUSDT','ETH/USDT')" style="padding:12px;background:#2a2a3a;color:#fff;border:none;border-radius:10px;font-weight:800">Ξ ETH</button>
+<button onclick="quickTrade('BINANCE:SOLUSDT','SOL/USDT')" style="padding:12px;background:#2a2a3a;color:#fff;border:none;border-radius:10px;font-weight:800">◎ SOL</button>
+<button onclick="quickTrade('OANDA:XAUUSD','GOLD')" style="padding:12px;background:#2a2a3a;color:#fff;border:none;border-radius:10px;font-weight:800">GOLD</button>
+</div>
+<button onclick="location.href='markets.html'" style="width:100%;margin-top:10px;padding:10px;background:#15151d;border:1px solid #333;color:#fff;border-radius:8px;font-size:12px">View All Markets →</button>
+</div>
+</div>
+
+<script>
+function quickTrade(tv,name){localStorage.setItem('selectedSymbol',tv);localStorage.setItem('selectedName',name);location.href='trade.html';}
+
+function loadDashExtra(){
+  let bal=parseFloat(localStorage.getItem('balance')||'24587.32');
+  let avail=parseFloat(localStorage.getItem('availBalance')||'12340');
+  let locked=parseFloat(localStorage.getItem('lockedBalance')||'12246');
+  let trades=JSON.parse(localStorage.getItem('trades')||'[]');
+  let closed=JSON.parse(localStorage.getItem('closedTrades')||'[]');
+  
+  document.getElementById('dashBal').innerText='$'+bal.toFixed(2);
+  document.getElementById('dashAvail').innerText='$'+avail.toFixed(2);
+  document.getElementById('dashLocked').innerText='$'+locked.toFixed(2);
+  document.getElementById('openCountDash').innerText=trades.length;
+  
+  
+  let prev=document.getElementById('openPreview');
+  if(trades.length===0){
+    prev.innerHTML='<p style="font-size:11px;opacity:0.5;text-align:center;padding:10px">No open trades<br><a href="trade.html" style="color:#f0b90b">Open one →</a></p>';
+  } else {
+    let cur=parseFloat(localStorage.getItem('lastPrice')||'40256');
+    let html='';
+    trades.slice(-3).reverse().forEach(t=>{
+      let pnl=t.side==='long'?(cur-t.entry)*t.amount*t.lev:(t.entry-cur)*t.amount*t.lev;
+      let c=pnl>=0?'#0ecb81':'#f6465d';
+      html+=`<div style="display:flex;justify-content:space-between;padding:8px;background:#0e0e12;border-radius:8px;margin:5px 0"><span style="font-size:12px">${t.symbol} ${t.side.toUpperCase()}</span><b style="color:${c};font-size:12px">${pnl>=0?'+':''}$${pnl.toFixed(2)}</b></div>`;
+    });
+    prev.innerHTML=html;
+  }
+  
+  
+  let total=0,wins=0,loss=0;
+  closed.forEach(c=>{total+=(c.pnl||0); if((c.pnl||0)>0) wins++; else if((c.pnl||0)<0) loss++;});
+  document.getElementById('todayPnl').innerText=(total>=0?'+$':'-$')+Math.abs(total).toFixed(2);
+  document.getElementById('todayPnl').style.color=total>=0?'#0ecb81':'#f6465d';
+  document.getElementById('winsDash').innerText=wins;
+  document.getElementById('lossDash').innerText=loss;
+  document.getElementById('winRateDash').innerText=closed.length?((wins/closed.length)*100).toFixed(0)+'%':'0%';
+  
+  
+  let margin = bal>0? (avail/bal*100):0;
+  document.getElementById('marginBar').style.width=margin+'%';
+  document.getElementById('marginBar').style.background=margin>60?'#0ecb81':margin>30?'#f0b90b':'#f6465d';
+  document.getElementById('marginTxt').innerText=margin.toFixed(0)+'% - '+(margin>60?'Safe':margin>30?'Warning':'Danger');
+  document.getElementById('marginTxt').style.color=margin>60?'#0ecb81':margin>30?'#f0b90b':'#f6465d';
+  
+  
+  fetchLive();
+}
+
+async function fetchLive(){
+  try{
+    let syms=['BTCUSDT','ETHUSDT','SOLUSDT'];
+    for(let s of syms){
+      try{
+        let r=await fetch('https://api.binance.com/api/v3/ticker/price?symbol='+s);
+        let j=await r.json();
+        document.querySelectorAll(`.livePrice[data-sym="${s}"]`).forEach(el=>el.innerText='$'+parseFloat(j.price).toLocaleString(undefined,{maximumFractionDigits:2}));
+      }catch(e){}
+    }
+  }catch(e){}
+}
+
+loadDashExtra();
+setInterval(loadDashExtra,3000);
+</script>
+</div>
+
+<script>
+function renderRecentTrades(){
+  let trades = JSON.parse(localStorage.getItem('trades')||'[]');
+  let closed = JSON.parse(localStorage.getItem('closedTrades')||'[]');
+  let all = [...closed].reverse().slice(0,10); // last 10
+  
+  // Kama bado hujafunga trade, onyesha open trades kama history pia
+  if(all.length===0 && trades.length>0){
+    all = trades.slice(-5).reverse().map(t=>{
+      let curP = parseFloat(localStorage.getItem('lastPrice')||t.entry);
+      let pnl = t.side==='long'?(curP-t.entry)*t.amount*t.lev:(t.entry-curP)*t.amount*t.lev;
+      return {...t, pnl:pnl, status:'LIVE', time:'Now'};
+    });
+  }
+
+  if(all.length===0){
+    document.getElementById('recentTradesLive').innerHTML='<p style="font-size:12px;opacity:0.5;padding:15px 0;text-align:center">No trades yet.<br>Anza kutrade kwa Trade page</p>';
+    return;
+  }
+
+  let html='';
+  all.forEach(tr=>{
+    let pnl = tr.pnl!==undefined?tr.pnl:0;
+    let isProfit = pnl>=0;
+    let color = isProfit?'#0ecb81':'#f6465d';
+    let bg = isProfit?'rgba(14,203,129,0.1)':'rgba(246,70,93,0.1)';
+    let icon = tr.side==='long'?'📈':'📉';
+    let time = tr.time||new Date(tr.id).toLocaleTimeString();
+    
+    html+=`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 10px;background:${bg};border-radius:8px;margin:6px 0;border-left:3px solid ${color}">
+      <div>
+        <div style="font-size:13px;font-weight:700">${icon} ${tr.symbol||'BTC/USDT'} • ${tr.side?tr.side.toUpperCase():'BUY'} ${tr.lev||10}x</div>
+        <div style="font-size:10px;opacity:0.6">${time} • Entry ${tr.entry} • ${tr.status||'Closed'}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:14px;font-weight:800;color:${color}">${isProfit?'+':''}$${pnl.toFixed(2)}</div>
+        <div style="font-size:10px;opacity:0.6">${isProfit?'Profit':'Loss'}</div>
+      </div>
+    </div>`;
+  });
+  
+  // Total summary
+  let totalPnl = all.reduce((s,t)=>s+(t.pnl||0),0);
+  html+=`<div style="display:flex;justify-content:space-between;padding:10px;background:#0e0e12;border-radius:8px;margin-top:10px;font-size:12px"><span>Total P/L (Last ${all.length})</span><b style="color:${totalPnl>=0?'#0ecb81':'#f6465d'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</b></div>`;
+  
+  document.getElementById('recentTradesLive').innerHTML=html;
+}
+
+function clearHistory(){
+  if(confirm('Clear history?')){
+    localStorage.removeItem('closedTrades');
+    renderRecentTrades();
+  }
+}
+
+// HII NDIO INAIFANYA LIVE - inasoma kila sec 2
+renderRecentTrades();
+setInterval(renderRecentTrades, 2000);
+
+// Blink LIVE dot
+setInterval(()=>{let d=document.getElementById('liveDot');if(d){d.style.opacity=d.style.opacity==='1'?'0.3':'1'}}, 800);
+</script>
+</div>
+</body></html>

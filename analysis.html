@@ -1,0 +1,133 @@
+<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<script>if(localStorage.getItem('loggedIn')!=='true'){location.href='index.html'}</script>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<style>
+.main-grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;padding:12px}
+.news-item{padding:12px;border-bottom:1px solid #1e1e2a;display:flex;gap:10px}
+.signal-card{background:#0e0e12;padding:12px;border-radius:10px;margin:8px 0;border-left:3px solid #0ecb81;cursor:pointer}
+.signal-card.sell{border-left-color:#f6465d}
+.fear-bar{height:10px;background:linear-gradient(90deg,#f6465d,#f0b90b,#0ecb81);border-radius:10px;position:relative}
+@media (max-width:768px){
+  .main-grid{grid-template-columns:1fr;padding:8px}
+  .top-stats-mobile{grid-template-columns:1fr 1fr 1fr !important}
+  #miniChart{height:220px !important}
+  .topbar .nav{overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+  .topbar .nav a{font-size:11px;padding:6px 8px}
+}
+</style>
+</head><body>
+<div class="topbar"><div class="logo">TRADE<span>HUB</span> KE</div><div class="nav">
+<a href="dashboard.html">Dashboard</a><a href="markets.html">Markets</a><a href="trade.html">Trade</a><a href="portfolio.html">Portfolio</a><a href="wallet.html">Wallet</a><a class="active" href="analysis.html">Analysis</a>
+</div><div style="font-size:10px" id="liveTime">● LIVE</div></div>
+
+<div class="main-grid">
+<!-- LEFT -->
+<div>
+<div class="top-stats-mobile" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+<div class="card" style="text-align:center;padding:10px"><div style="font-size:9px;opacity:.5">Fear & Greed</div><b id="fngVal" style="font-size:20px">--</b><div class="fear-bar" style="margin:6px 0"><div id="fngDot" style="position:absolute;width:10px;height:10px;background:#fff;border-radius:50%;top:0;left:50%"></div></div><div id="fngTxt" style="font-size:9px">Loading...</div></div>
+<div class="card" style="text-align:center;padding:10px"><div style="font-size:9px;opacity:.5">BTC Dom</div><b style="font-size:16px" id="btcDom">52.4%</b><div style="font-size:9px;color:#0ecb81">Market</div><button onclick="goTrade('BINANCE:BTCUSDT','BTC/USDT')" style="margin-top:5px;padding:5px 8px;background:#f0b90b;border:none;border-radius:6px;font-size:9px;font-weight:800;width:100%">Trade BTC</button></div>
+<div class="card" style="text-align:center;padding:10px"><div style="font-size:9px;opacity:.5">24h Vol</div><b id="vol24" style="font-size:16px">$89B</b><div style="font-size:9px;opacity:.5">Binance</div><div style="font-size:9px;color:#0ecb81;margin-top:4px">● LIVE</div></div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden">
+<div style="padding:12px;display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:14px">Market News - LIVE</h3><button onclick="loadNews()" style="padding:4px 8px;background:#2a2a3a;color:#fff;border:none;border-radius:6px;font-size:10px">↻</button></div>
+<div id="newsList"><p style="padding:20px;text-align:center;opacity:0.5;font-size:12px">Loading news...</p></div>
+</div>
+</div>
+
+<!-- RIGHT -->
+<div>
+<div class="card" style="padding:12px">
+<div style="display:flex;justify-content:space-between"><h3 style="font-size:14px">🤖 AI Signals</h3><span style="font-size:9px;opacity:0.5">Tap → Trade</span></div>
+<div id="aiSignals"></div>
+</div>
+
+<div class="card" style="padding:12px;margin-top:10px">
+<h3 style="font-size:14px">Top Movers 24h</h3>
+<div id="topMovers" style="margin-top:8px"></div>
+</div>
+
+<div class="card" style="padding:12px;margin-top:10px">
+<h3 style="font-size:14px">Quick Chart</h3>
+<div id="miniChart" style="height:200px;margin:8px 0;background:#0e0e12;border-radius:8px"></div>
+<select id="analysisSym" onchange="loadMiniChart()" style="width:100%;padding:10px;background:#0e0e12;color:#fff;border:1px solid #222;border-radius:8px;font-size:12px">
+<option value="BINANCE:BTCUSDT">BTC/USDT</option>
+<option value="BINANCE:ETHUSDT">ETH/USDT</option>
+<option value="BINANCE:SOLUSDT">SOL/USDT</option>
+<option value="OANDA:XAUUSD">GOLD</option>
+<option value="FX:EURUSD">EUR/USD</option>
+</select>
+</div>
+</div>
+</div>
+
+<script>
+function goTrade(tv,name,entry,tp,sl){
+ localStorage.setItem('selectedSymbol',tv);
+ localStorage.setItem('selectedName',name);
+ if(entry){localStorage.setItem('signalEntry',entry); localStorage.setItem('signalTP',tp); localStorage.setItem('signalSL',sl);}
+ location.href='trade.html';
+}
+async function loadFNG(){
+ try{
+  let r=await fetch('https://api.alternative.me/fng/?limit=1');
+  let j=await r.json();
+  let v=j.data[0].value;
+  document.getElementById('fngVal').innerText=v;
+  document.getElementById('fngTxt').innerText=j.data[0].value_classification;
+  document.getElementById('fngDot').style.left=v+'%';
+ }catch(e){document.getElementById('fngVal').innerText='52'; document.getElementById('fngTxt').innerText='Neutral';}
+}
+async function loadNews(){
+ let div=document.getElementById('newsList');
+ try{
+  let r=await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&feeds=cryptocompare');
+  let j=await r.json();
+  let html='';
+  j.Data.slice(0,6).forEach(n=>{
+    html+=`<div class="news-item"><div>📰</div><div><div style="font-size:12px;font-weight:600">${n.title}</div><div style="font-size:9px;opacity:0.5;margin-top:4px">${n.source} • <span style="color:#f0b90b" onclick="window.open('${n.url}','_blank')">Read →</span></div></div></div>`;
+  });
+  html+=`<div class="news-item"><div>🇰🇪</div><div><div style="font-size:12px;font-weight:600">USD/KES 129.50 - CBK may intervene</div><div style="font-size:9px;opacity:0.5">Local • ${new Date().toLocaleTimeString()}</div></div></div>`;
+  div.innerHTML=html;
+ }catch(e){div.innerHTML='<div style="padding:12px;font-size:12px">🔥 BTC breaks $40k<br>📉 USD/KES 129.50<br>🟡 Gold +0.78%</div>';}
+}
+async function loadSignals(){
+ let div=document.getElementById('aiSignals');
+ try{
+  let syms=['BTCUSDT','ETHUSDT','SOLUSDT'];
+  let html='';
+  for(let s of syms){
+   let r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+s);
+   let j=await r.json();
+   let price=parseFloat(j.lastPrice); let ch=parseFloat(j.priceChangePercent);
+   let buy=ch>-1; let tp=buy?price*1.05:price*0.95; let sl=buy?price*0.97:price*1.03;
+   let conf=Math.abs(ch)>3?82:87;
+   html+=`<div class="signal-card ${buy?'':'sell'}" onclick="goTrade('BINANCE:${s}','${s.replace('USDT','/USDT')}','${price.toFixed(2)}','${tp.toFixed(2)}','${sl.toFixed(2)}')">
+   <div style="display:flex;justify-content:space-between"><b style="font-size:12px">${s.replace('USDT','/USDT')} ${buy?'BUY':'SELL'}</b><span style="font-size:9px;background:${buy?'#0ecb81':'#f6465d'};color:#000;padding:2px 6px;border-radius:10px;font-weight:800">${conf}%</span></div>
+   <div style="font-size:11px;margin-top:4px">Entry ${price.toFixed(2)} | TP ${tp.toFixed(2)} | SL ${sl.toFixed(2)}</div>
+   <div style="font-size:9px;color:#f0b90b;margin-top:4px">Tap to trade →</div></div>`;
+  }
+  div.innerHTML=html;
+ }catch(e){}
+}
+async function loadMovers(){
+ try{
+  let r=await fetch('https://api.binance.com/api/v3/ticker/24hr');
+  let j=await r.json();
+  let top=j.filter(t=>t.symbol.endsWith('USDT')).sort((a,b)=>parseFloat(b.priceChangePercent)-parseFloat(a.priceChangePercent)).slice(0,4);
+  let html='';
+  top.forEach(t=>{html+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e1e2a;font-size:12px"><span><b>${t.symbol.replace('USDT','')}</b><br><span style="font-size:9px;opacity:0.5">$${parseFloat(t.lastPrice).toFixed(2)}</span></span><b style="color:#0ecb81">+${parseFloat(t.priceChangePercent).toFixed(1)}%</b></div>`;});
+  document.getElementById('topMovers').innerHTML=html;
+  document.getElementById('vol24').innerText='$'+(top.reduce((s,t)=>s+parseFloat(t.quoteVolume),0)/1e9).toFixed(1)+'B';
+ }catch(e){}
+}
+function loadMiniChart(){
+ let sym=document.getElementById('analysisSym').value;
+ new TradingView.widget({autosize:true,symbol:sym,interval:"60",timezone:"Africa/Nairobi",theme:"dark",style:"1",container_id:"miniChart",height:200});
+}
+loadFNG(); loadNews(); loadSignals(); loadMovers(); loadMiniChart();
+setInterval(()=>{loadSignals(); document.getElementById('liveTime').innerText='● '+new Date().toLocaleTimeString();},15000);
+</script>
+</body></html>
