@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // === MONGODB - ADDED ONLY ===
-const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://omondikevineonyango_db_user:YOUR_PASSWORD_HAPA@cluster0.l5mk9pb.mongodb.net/tradehub?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://omondikevineonyango_db_user:HAhsEfzP3wupXtTx@cluster0.l5mk9pb.mongodb.net/tradehub?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
 .then(()=>console.log("✅ MongoDB Connected - Users wata-save hapa"))
