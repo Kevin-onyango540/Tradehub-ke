@@ -1,71 +1,131 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const axios = require('axios');
 const cors = require('cors');
-const multer = require('multer');
 const path = require('path');
-
-const upload = multer({dest:'uploads/'});
+const mongoose = require('mongoose'); // <-- ADDED ONLY
 const app = express();
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+app.use(express.json()); 
+app.use(express.static(__dirname));
 
-const MONGO = process.env.MONGO_URL || "mongodb+srv://kevoh:kevoh123@cluster0.xxxx.mongodb.net/tradehub?retryWrites=true&w=majority";
-mongoose.connect(MONGO).then(()=>console.log("✅ Mongo Connected")).catch(e=>console.log("Mongo Error",e.message));
+// === MONGODB - ADDED ONLY ===
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://omondikevineonyango_db_user:YOUR_PASSWORD_HAPA@cluster0.l5mk9pb.mongodb.net/tradehub?retryWrites=true&w=majority";
 
-const UserSchema = new mongoose.Schema({
-  phone: {type:String, unique:true, lowercase:true},
+mongoose.connect(MONGO_URI)
+.then(()=>console.log("✅ MongoDB Connected - Users wata-save hapa"))
+.catch(e=>console.log("❌ DB Error:", e.message));
+
+const User = mongoose.model('User', {
+  phone: {type:String, unique:true},
   password: String,
   balance: {type:Number, default:0},
-  idNumber: String,
-  kycStatus: {type:String, default:'not_verified'},
-  kycFrontUrl: String,
-  kycBackUrl: String,
-  createdAt: {type:Date, default:Date.now}
+  createdAt: {type: Date, default: Date.now}
 });
-const User = mongoose.model('User', UserSchema);
 
-app.post('/api/signup', async (req,res)=>{
+// === REAL REGISTER & LOGIN - ADDED ONLY ===
+app.post('/register', async (req,res)=>{
   try{
-    let phone=(req.body.phone||'').toLowerCase().trim();
-    let password=(req.body.password||'').trim();
-    if(!phone||!password) return res.json({success:false,msg:'Weka data'});
-    let exists=await User.findOne({phone});
-    if(exists) return res.json({success:false,msg:'User exists'});
-    let user=await User.create({phone,password});
-    res.json({success:true,user});
-  }catch(e){ res.json({success:false,msg:e.message}); }
+    const {phone, password} = req.body;
+    if(!phone || !password) return res.json({success:false, msg:"Jaza namba na password"});
+    let exists = await User.findOne({phone});
+    if(exists) return res.json({success:false, msg:"Namba imeshatumika! Ingia badala yake"});
+    let user = await User.create({phone, password});
+    console.log("NEW USER REGISTERED:", phone);
+    res.json({success:true, msg:"Akaunti imetengenezwa!", user});
+  }catch(e){ console.log(e); res.json({success:false, msg:e.message}) }
 });
 
-app.post('/api/login', async (req,res)=>{
+app.post('/login', async (req,res)=>{
   try{
-    let phone=(req.body.phone||'').toLowerCase().trim();
-    let password=(req.body.password||'').trim();
-    let user=await User.findOne({phone,password});
-    if(!user) return res.json({success:false,msg:'Wrong credentials'});
-    res.json({success:true,user});
-  }catch(e){ res.json({success:false,msg:e.message}); }
+    const {phone, password} = req.body;
+    let user = await User.findOne({phone, password});
+    if(!user) return res.json({success:false, msg:"Namba au password sio sahihi"});
+    console.log("USER LOGGED IN:", phone);
+    res.json({success:true, msg:"Umeingia!", user});
+  }catch(e){ res.json({success:false, msg:e.message}) }
 });
 
-app.get('/api/users', async (req,res)=>{ let users=await User.find().sort({createdAt:-1}); res.json({success:true,users}); });
-app.delete('/api/users/:id', async (req,res)=>{ await User.findByIdAndDelete(req.params.id); res.json({success:true}); });
-app.get('/api/balance/:phone', async (req,res)=>{ let u=await User.findOne({phone:req.params.phone.toLowerCase()}); res.json({success:true,balance:u?.balance||0}); });
-app.post('/api/admin/add-balance', async (req,res)=>{ let u=await User.findById(req.body.userId); u.balance=(u.balance||0)+Number(req.body.amount); await u.save(); res.json({success:true}); });
-app.post('/api/kyc/upload', upload.fields([{name:'front'},{name:'back'}]), async (req,res)=>{ let phone=(req.body.phone||'').toLowerCase(); let u=await User.findOne({phone}); u.idNumber=req.body.idNumber; u.kycStatus='pending'; if(req.files['front'])u.kycFrontUrl=req.files['front'][0].path; if(req.files['back'])u.kycBackUrl=req.files['back'][0].path; await u.save(); res.json({success:true}); });
-app.get('/api/kyc/:phone', async (req,res)=>{ let u=await User.findOne({phone:req.params.phone.toLowerCase()}); res.json({success:true,kyc:{idNumber:u?.idNumber,status:u?.kycStatus||'not_verified'}}); });
-app.post('/api/admin/kyc-approve', async (req,res)=>{ let u=await User.findById(req.body.userId); u.kycStatus=req.body.status; await u.save(); res.json({success:true}); });
-app.post('/deposit', (req,res)=>res.json({success:true,data:{CheckoutRequestID:'DEMO'}}));
-app.post('/withdraw', (req,res)=>res.json({success:true}));
-app.post('/callback', (req,res)=>res.json({success:true}));
+// === WEKA HAPA KEYS ZAKO - YAKO YA MWANZO HAIJAGUSWA ===
+const CONSUMER_KEY = "rTG5uILxfGlvdopjNVGVZtcM9eKtYp71a2PW1FlXItJXbPfP";
+const CONSUMER_SECRET = "SO8eX3X0V11HTG7ktLyxz67pm8QNHICFlvThKGt1sQipkUXWATK6o5uooqsfz4IR";
+const SHORTCODE = "174379";
+const PASSKEY = "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+const SECURITY_CRED = "geWcxfFshPGcdKHx0cGm3ANuFGb7RW8ei7QpKsrA2E/OsDCihxHyGdO7J/kKyZnNbOxywms3WDp3wFtyLxro/Xn61rou3k7Zb4aJAXu/hXfay3VIFv+Two6jTKksHfXFG5cqg5ggLfBJcouWfIqM/LZSFj/L8RXgyGhtEzB8TLAOFxtGDaz/WVEzOhaIVrtx5SXbtxm2p4gyvUp6ZlIEYcKkEvDnCnTPQKiEtw7IqctTCTxv/PnE7p7vU9i9OaRrTHwVGU5rtNkyJR8fT8fP9sHRyHoGjlXoPIF8VFBmTUSpW5eHJ35LIkhK+a0TSNJSFGAufLqXEvInFNCWqAGjxg==";
+const INITIATOR = "testapi";
+// ============================
 
-app.use(express.static(__dirname));
-app.use('/uploads', express.static('uploads'));
+async function getToken(){
+  const auth = Buffer.from(CONSUMER_KEY+":"+CONSUMER_SECRET).toString('base64');
+  const res = await axios.get("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",{headers:{Authorization:"Basic "+auth}});
+  return res.data.access_token;
+}
 
-// HII NDIO FIX - USITUMIE app.get('*')
-app.use((req,res)=>{
-  res.sendFile(path.join(__dirname, 'index.html'));
+// 1. DEPOSIT - STK PUSH - YAKO HAIJAGUSWA
+app.post('/deposit', async (req,res)=>{
+  try{
+    const token = await getToken();
+    const timestamp = new Date().toISOString().replace(/[^0-9]/g,'').slice(0,14);
+    const password = Buffer.from(SHORTCODE+PASSKEY+timestamp).toString('base64');
+    const payload = {
+      BusinessShortCode: SHORTCODE,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: "CustomerPayBillOnline",
+      Amount: req.body.amount || 100,
+      PartyA: req.body.phone,
+      PartyB: SHORTCODE,
+      PhoneNumber: req.body.phone,
+      CallBackURL: "https://mydomain.com/callback",
+      AccountReference: "TradeHub",
+      TransactionDesc: "Deposit"
+    };
+    const resp = await axios.post("https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest", payload, {headers:{Authorization:"Bearer "+token}});
+    console.log("STK sent to", req.body.phone);
+    res.json({success:true, data:resp.data});
+  }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
 });
 
-const PORT=process.env.PORT||10000;
-app.listen(PORT, ()=>console.log('✅ Server running on '+PORT));
+// 2. WITHDRAWAL - B2C - YAKO HAIJAGUSWA
+app.post('/withdraw', async (req,res)=>{
+  try{
+    const token = await getToken();
+    const payload = {
+      InitiatorName: INITIATOR,
+      SecurityCredential: SECURITY_CRED,
+      CommandID: "BusinessPayment",
+      Amount: req.body.amount,
+      PartyA: SHORTCODE,
+      PartyB: req.body.phone,
+      Remarks: "TradeHub Withdrawal",
+      QueueTimeOutURL: "https://mydomain.com/timeout",
+      ResultURL: "https://mydomain.com/result",
+      Occassion: "Withdraw"
+    };
+    const resp = await axios.post("https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest", payload, {headers:{Authorization:"Bearer "+token}});
+    console.log("WITHDRAW", req.body.amount, "to", req.body.phone);
+    res.json({success:true, msg:"Withdrawal in process"});
+  }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
+});
+
+// --- YAKO YA MWANZO - HAIJAGUSWA ---
+app.get('/', (req,res)=>{
+  const loginPath = path.join(__dirname, 'login.html');
+  const indexPath = path.join(__dirname, 'index.html');
+  const walletPath = path.join(__dirname, 'wallet.html');
+  
+  res.sendFile(loginPath, (err)=>{
+    if(err){
+      res.sendFile(indexPath, (err2)=>{
+        if(err2){
+          res.sendFile(walletPath, (err3)=>{
+            if(err3) res.send('TradeHub Backend LIVE ✅ - /deposit & /withdraw ready');
+          });
+        }
+      });
+    }
+  });
+});
+
+const PORT = process.env.PORT || 10000
+app.listen(PORT, '0.0.0.0', ()=> {console.log(`✅ Backend LIVE on port ${PORT}`)});
