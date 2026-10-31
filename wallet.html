@@ -13,123 +13,117 @@ else localStorage.setItem('session_expiry', Date.now()+30*60*1000);
 <div class="card" style="text-align:center"><p style="opacity:0.6;font-size:12px">Available Balance</p><h1 style="font-size:32px;margin:6px 0" id="balDisplay">$0.00</h1><p id="kesBal" style="opacity:0.6">KES 0</p><p id="realBalInfo" style="font-size:10px;color:#0ecb81;margin-top:6px"></p></div>
 
 <div class="card" style="border:1px solid #0ecb81">
-<h3 style="color:#0ecb81">💚 Lipa na M-Pesa</h3>
-<input id="mpesaPhone" class="mpesa-input" placeholder="254712345678" value="254792139891">
+<h3 style="color:#0ecb81">💚 Lipa na M-Pesa - Real STK Push</h3>
+<p style="font-size:11px;opacity:0.6;margin:6px 0">Amount to be deposited</p>
+<input id="mpesaPhone" class="mpesa-input" placeholder="Safaricom: 254712345678" value="254792139891">
 <input id="mpesaAmount" class="mpesa-input" type="number" placeholder="Amount KES min 10" value="100">
-<button id="depositBtn" onclick="realMpesaDeposit()" style="width:100%;background:#0ecb81;border:none;padding:14px;border-radius:8px;font-weight:900;color:#fff;font-size:16px;margin-top:8px">DEPOSIT 📲</button>
+<button id="depositBtn" onclick="realMpesaDeposit()" style="width:100%;background:#0ecb81;border:none;padding:14px;border-radius:8px;font-weight:900;color:#fff;font-size:16px;margin-top:8px">DEPOSIT TO ACCOUNT 📲</button>
 <p id="stkStatus" style="font-size:12px;margin-top:8px;text-align:center"></p>
 </div>
 
 <div style="background:rgba(0,0,0,0.5);border:1px solid rgba(240,185,11,0.15);padding:16px;border-radius:14px;margin-top:14px">
-<b style="font-size:13px">WITHDRAW TO M-PESA</b>
-<input id="wdPhone" class="mpesa-input" placeholder="2547XXXXXXXX" value="254792139891">
+<div style="display:flex;justify-content:space-between;margin-bottom:10px">
+<b style="font-size:13px"><i class="fas fa-arrow-up" style="color:#f6465d"></i> WITHDRAW TO M-PESA</b>
+<span style="font-size:10px;opacity:0.5">Min KES 100 • Max 70k</span>
+</div>
+<input id="wdPhone" class="mpesa-input" placeholder="M-Pesa No 2547XXXXXXXX" value="254792139891">
 <input id="wdAmount" class="mpesa-input" type="number" placeholder="Amount KES">
-<button id="wdBtn" onclick="withdrawMpesa()" style="width:100%;padding:13px;background:#0e0e14;border:1px solid #f6465d;color:#f6465d;border-radius:10px;font-weight:900;margin-top:8px">WITHDRAW 💸</button>
+<button id="wdBtn" onclick="withdrawMpesa()" style="width:100%;padding:13px;background:#0e0e14;border:1px solid #f6465d;color:#f6465d;border-radius:10px;font-weight:900;margin-top:8px;cursor:pointer">WITHDRAW NOW 💸</button>
 <p id="wdStatus" style="font-size:11px;margin-top:8px;display:none"></p>
 </div>
 
 <div class="card"><h3>Transactions</h3><div id="txList" style="font-size:12px;margin-top:8px"></div></div>
-
-<!-- KYC CARD -->
-<div class="card" style="border:1px solid #f0b90b;margin-top:12px">
-<h3 style="color:#f0b90b">🪪 KYC Verification</h3>
-<p style="font-size:11px;opacity:0.6;margin:6px 0">Verify ID to enable withdraw</p>
-<div id="kycStatusBox" style="padding:8px;border-radius:8px;background:#0e0e12;font-size:11px;margin:6px 0">Status: <b id="kycStatusText">Not Verified</b></div>
-<input id="idNumber" class="mpesa-input" placeholder="ID Number e.g. 12345678">
-<input id="idFront" type="file" accept="image/*" class="mpesa-input"><label style="font-size:10px;opacity:0.5">Front ya ID</label>
-<input id="idBack" type="file" accept="image/*" class="mpesa-input" style="margin-top:6px"><label style="font-size:10px;opacity:0.5">Back ya ID</label>
-<button onclick="submitKYC()" id="kycBtn" style="width:100%;background:#f0b90b;color:#000;border:none;padding:12px;border-radius:8px;font-weight:900;margin-top:10px">SUBMIT KYC 📤</button>
-<p id="kycMsg" style="font-size:11px;margin-top:6px;text-align:center"></p>
-</div>
-
 </div>
 
 <script>
  const BACKEND_URL = "https://tradehub-ke.onrender.com";
+
 function updateBal(){
  let bal=parseFloat(localStorage.getItem('balance')||0);
+ let avail=parseFloat(localStorage.getItem('availBalance')||bal);
  document.getElementById('balDisplay').innerText='$'+bal.toFixed(2);
- document.getElementById('kesBal').innerText='KES '+(bal*129.5).toFixed(2);
+ document.getElementById('kesBal').innerText='KES '+(bal*129.5).toFixed(2)+' | Avail: '+(avail*129.5).toFixed(0);
  let deps=JSON.parse(localStorage.getItem('deposits')||'[]');
  document.getElementById('txList').innerHTML=deps.slice(-10).reverse().map(d=>`
   <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e1e2a">
-   <span>${d.amount>0?'Deposit':'Withdraw'}<br><small style="opacity:0.5">${d.status||'completed'}</small></span>
+   <span>${d.amount>0?'Deposit':'Withdraw'} • ${d.phone||''}<br><small style="opacity:0.5">${d.status||'completed'} - ${new Date(d.time||Date.now()).toLocaleTimeString()}</small></span>
    <span style="color:${d.amount>0?'#0ecb81':'#f6465d'}">${d.amount>0?'+':''}KES ${(Math.abs(d.amount)*129.5).toFixed(0)}</span>
-  </div>`).join('') || '<p style="opacity:0.5">No tx yet</p>';
+  </div>`).join('') || '<p style="opacity:0.5">No transactions yet</p>';
 }
+
 async function realMpesaDeposit(){
  let phone=document.getElementById('mpesaPhone').value.trim();
  let amount=document.getElementById('mpesaAmount').value.trim();
- let btn=document.getElementById('depositBtn'); let status=document.getElementById('stkStatus');
- btn.innerText='STK sent...'; btn.disabled=true;
+ let btn=document.getElementById('depositBtn');
+ let status=document.getElementById('stkStatus');
+ if(!phone.startsWith('254') || phone.length!=12){ alert('Enter valid phone number 254792139891'); return; }
+ if(parseInt(amount)<10){ alert('Min KES 10'); return; }
+ btn.innerText='STK sent...'; btn.disabled=true; status.innerText='⏳ sending request to Safaricom...';
  try{
-   let res=await fetch(BACKEND_URL+'/deposit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ phone, amount: parseInt(amount) })});
+   let res=await fetch(BACKEND_URL+'/deposit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ phone: phone, amount: parseInt(amount) })});
    let data=await res.json();
-   status.innerHTML=data.success?'<span style="color:#0ecb81">✅ STK sent - enter PIN</span>':'<span style="color:#f6465d">❌ '+JSON.stringify(data)+'</span>';
- }catch(e){ status.innerHTML='❌ '+e.message; }
- btn.innerText='DEPOSIT 📲'; btn.disabled=false;
+   if(data.success){
+     status.innerHTML='<span style="color:#0ecb81">✅ STK Push sent - enter M-Pesa PIN.<br><small>'+(data.data.CheckoutRequestID||'')+'</small></span>';
+     let deps=JSON.parse(localStorage.getItem('deposits')||'[]');
+     deps.push({amount: parseFloat(amount)/129.5, kes: parseInt(amount), phone, status:'STK Sent - Enter PIN', id:data.data.CheckoutRequestID, time:Date.now()});
+     localStorage.setItem('deposits', JSON.stringify(deps));
+   } else { status.innerHTML='<span style="color:#f6465d">❌ Failed: '+(data.error?.errorMessage || JSON.stringify(data))+'</span>'; }
+ }catch(e){ status.innerHTML='<span style="color:#f6465d">❌ Backend off! '+e.message+'</span>'; }
+ btn.innerText='DEPOSIT TO ACCOUNT 📲'; btn.disabled=false;
 }
+
 async function withdrawMpesa(){
  let phone=document.getElementById('wdPhone').value.trim();
  let amount=parseInt(document.getElementById('wdAmount').value);
- let status=document.getElementById('wdStatus'); let btn=document.getElementById('wdBtn');
- status.style.display='block'; status.innerText='⏳ sending...';
+ let status=document.getElementById('wdStatus');
+ let btn=document.getElementById('wdBtn');
+ if(!phone.startsWith('254') || phone.length!=12){ status.style.display='block'; status.style.color='#f6465d'; status.innerText='Enter valid phone 254792139891'; return; }
+ if(amount<100){ status.style.display='block'; status.innerText='Min 100'; return; }
+ let bal=parseFloat(localStorage.getItem('availBalance')|| localStorage.getItem('balance')||'0')*129.5;
+ if(amount>bal){ status.style.display='block'; status.innerText='Not enough. Avail: KES '+bal.toFixed(0); return; }
+ btn.disabled=true; btn.innerText='PROCESSING...'; status.style.display='block'; status.style.color='#f0b90b'; status.innerText='⏳ sending...';
  try{
    let res=await fetch(BACKEND_URL+'/withdraw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone, amount, username:localStorage.getItem('username')})});
    let data=await res.json();
-   status.innerText=data.success?'✅ Withdraw processing':'❌ '+JSON.stringify(data);
- }catch(e){ status.innerText='❌ Server error'; }
+   if(data.success){
+     status.style.color='#0ecb81'; status.innerText='✅ Withdraw in process';
+     let newBal=parseFloat(localStorage.getItem('balance')||0) - amount/129.5;
+     localStorage.setItem('balance', newBal); localStorage.setItem('availBalance', newBal);
+     let deps=JSON.parse(localStorage.getItem('deposits')||'[]');
+     deps.push({amount: -amount/129.5, kes: -amount, phone, status:'Withdraw Processing', time:Date.now()});
+     localStorage.setItem('deposits', JSON.stringify(deps)); updateBal();
+   }else{ status.style.color='#f6465d'; status.innerText='❌ '+(data.error?.errorMessage||JSON.stringify(data.error)); }
+ }catch(e){ status.style.color='#f6465d'; status.innerText='❌ Server error'; }
+ btn.disabled=false; btn.innerText='WITHDRAW NOW 💸';
 }
 updateBal();
 </script>
 
+<!-- ===== HII NDIO MPYA - INAVUTA BALANCE HALISI KUTOKA ADMIN ===== -->
 <script>
-// LIVE BALANCE FROM ADMIN
 async function loadRealWalletBalance(){
-  let phone = localStorage.getItem('username'); if(!phone) return;
+  let phone = localStorage.getItem('username');
+  if(!phone) return;
   try{
     let res = await fetch(BACKEND_URL + '/api/balance/' + phone);
     let data = await res.json();
     if(data.success){
-      let balKES = data.balance || 0; let balUSD = balKES / 129.5;
+      let balKES = data.balance || 0; // Balance ni KES
+      let balUSD = balKES / 129.5;
+      // Update display
       document.getElementById('balDisplay').innerText = '$' + balUSD.toFixed(2);
-      document.getElementById('kesBal').innerText = 'KES ' + balKES.toLocaleString();
+      document.getElementById('kesBal').innerText = 'KES ' + balKES.toLocaleString() + ' | Avail: KES ' + balKES.toLocaleString();
       document.getElementById('realBalInfo').innerText = '✅ Live from Admin DB';
-      localStorage.setItem('balance', balUSD); localStorage.setItem('availBalance', balUSD);
+      // Sync kwa localStorage ndio trade ifanye kazi
+      localStorage.setItem('balance', balUSD);
+      localStorage.setItem('availBalance', balUSD);
+      localStorage.setItem('balance_kes', balKES);
     }
-  }catch(e){}
+  }catch(e){ console.log('wallet bal error', e); }
 }
-loadRealWalletBalance(); setInterval(loadRealWalletBalance,5000);
-
-// KYC LOGIC
-async function loadKYC(){
- let phone=localStorage.getItem('username');
- try{
-  let r=await fetch(BACKEND_URL+'/api/kyc/'+phone); let d=await r.json();
-  if(d.success && d.kyc){
-   document.getElementById('kycStatusText').innerText=d.kyc.status.toUpperCase();
-   document.getElementById('idNumber').value=d.kyc.idNumber||'';
-   document.getElementById('kycStatusBox').style.background=d.kyc.status=='approved'?'rgba(14,203,129,0.15)':d.kyc.status=='pending'?'rgba(240,185,11,0.15)':'#0e0e12';
-   document.getElementById('kycStatusText').style.color=d.kyc.status=='approved'?'#0ecb81':d.kyc.status=='pending'?'#f0b90b':'#f6465d';
-  }
- }catch(e){}
-}
-async function submitKYC(){
- let phone=localStorage.getItem('username');
- let idNumber=document.getElementById('idNumber').value.trim();
- let front=document.getElementById('idFront').files[0];
- let back=document.getElementById('idBack').files[0];
- if(!idNumber || !front){ alert('Weka ID na Front'); return; }
- let btn=document.getElementById('kycBtn'); btn.disabled=true; btn.innerText='UPLOADING...';
- let fd=new FormData(); fd.append('phone',phone); fd.append('idNumber',idNumber); fd.append('front',front); if(back) fd.append('back',back);
- try{
-  let res=await fetch(BACKEND_URL+'/api/kyc/upload',{method:'POST',body:fd});
-  let data=await res.json();
-  if(data.success){ document.getElementById('kycMsg').style.color='#0ecb81'; document.getElementById('kycMsg').innerText='✅ KYC Submitted - Pending'; loadKYC(); }
-  else{ document.getElementById('kycMsg').innerText='❌ '+data.msg; }
- }catch(e){ document.getElementById('kycMsg').innerText='❌ '+e.message; }
- btn.disabled=false; btn.innerText='SUBMIT KYC 📤';
-}
-loadKYC();
+loadRealWalletBalance();
+setInterval(loadRealWalletBalance, 5000); // Ita-refresh kila 5 sec ukimwongezea
 </script>
-</body></html>
+
+</body>
+</html>
