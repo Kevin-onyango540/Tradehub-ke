@@ -108,6 +108,16 @@ app.post('/withdraw', async (req,res)=>{
   }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
 });
 
+app.post('/api/admin/add-balance', async (req,res)=>{
+  try{
+    const {userId, amount} = req.body;
+    let user = await User.findById(userId);
+    user.balance = (user.balance||0) + Number(amount);
+    await user.save();
+    res.json({success:true});
+  }catch(e){ res.json({success:false, msg:e.message}) }
+});
+
 // === ADMIN APIs - ADDED ONLY ===
 app.get('/api/users', async (req,res)=>{
   try{
