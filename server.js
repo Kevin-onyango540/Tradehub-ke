@@ -126,6 +126,14 @@ app.get('/api/users', async (req,res)=>{
   }catch(e){ res.json({success:false, msg:e.message}) }
 });
 
+app.get('/api/balance/:phone', async (req,res)=>{
+  try{
+    let user = await User.findOne({phone: req.params.phone});
+    if(!user) return res.json({success:false, balance:0});
+    res.json({success:true, balance: user.balance||0});
+  }catch(e){ res.json({success:false, balance:0}) }
+});
+
 app.delete('/api/users/:id', async (req,res)=>{
   try{
     await User.findByIdAndDelete(req.params.id);
