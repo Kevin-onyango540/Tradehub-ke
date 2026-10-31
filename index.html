@@ -3,167 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KEVIN TRADEHUB KE - Kenya's #1 Trading</title>
+<title>KEVIN TRADEHUB KE</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center;padding:0}
-.container{width:100%;max-width:420px;background:linear-gradient(180deg,#14141f 0%,#0a0a0f 100%);min-height:100vh;position:relative;overflow:hidden}
-.header{padding:20px 16px 10px}
-.logo{font-size:28px;font-weight:900;letter-spacing:-0.5px}.logo span{color:#f0b90b}
-.live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(14,203,129,0.12);border:1px solid rgba(14,203,129,0.3);color:#0ecb81;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:800;margin:14px 0}
-.live-badge i{width:8px;height:8px;background:#0ecb81;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
-@keyframes pulse{0%{opacity:1}50%{opacity:0.4}100%{opacity:1}}
-.sub{font-size:13px;opacity:0.6;margin-bottom:14px}
-.prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
-.price-card{background:#1a1a26;border:1px solid #24243a;border-radius:12px;padding:10px;text-align:left}
-.price-card b{display:block;font-size:13px;margin-bottom:2px}.price-card small{color:#0ecb81;font-size:11px}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
-.stat{background:#1a1a26;border:1px solid #24243a;border-radius:12px;padding:12px;text-align:center}
-.stat b{color:#f0b90b;font-size:18px;display:block}.stat span{font-size:9px;opacity:0.5;letter-spacing:0.5px}
-.features{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-.feat{display:flex;align-items:center;gap:12px;background:#1a1a26;border:1px solid #24243a;border-radius:12px;padding:12px}
-.feat i{width:36px;height:36px;background:#24243a;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#f0b90b}
-.feat b{font-size:13px;display:block}.feat small{font-size:11px;opacity:0.5}
-.login-box{background:#f5f5f7;border-radius:24px 24px 0 0;padding:20px 16px 30px;color:#111;margin-top:10px}
-.login-box h2{font-size:20px;font-weight:900;color:#111}.login-box p{font-size:11px;opacity:0.5;margin:4px 0 14px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.tab{padding:12px;border-radius:12px;border:none;font-weight:800;font-size:12px;cursor:pointer}
-.tab.active{background:#f0b90b;color:#000}.tab.inactive{background:#e9e9ef;color:#111}
-.input{width:100%;background:#fff;border:1px solid #e0e0e8;padding:14px;border-radius:12px;margin:6px 0;font-size:14px;outline:none}
-.input:focus{border-color:#f0b90b}
-.btn-main{width:100%;background:#f0b90b;border:none;padding:16px;border-radius:12px;font-weight:900;font-size:14px;margin-top:10px;cursor:pointer;color:#000}
-.msg{display:none;background:rgba(246,70,93,0.12);border:1px solid rgba(246,70,93,0.2);color:#f6465d;padding:10px;border-radius:10px;font-size:11px;margin:8px 0;text-align:center}
-.attempt{font-size:10px;opacity:0.4;text-align:center;margin-top:10px}
-.attempt span{color:#f0b90b;cursor:pointer}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Arial}
+body{background:#0a0a0f;color:#fff;display:flex;justify-content:center}
+.container{width:100%;max-width:430px;background:#12121a;min-height:100vh}
+.header{padding:20px 16px}
+.logo{font-size:28px;font-weight:900} .logo span{color:#f0b90b}
+.live{display:inline-flex;gap:6px;align-items:center;background:rgba(14,203,129,.15);border:1px solid rgba(14,203,129,.3);color:#0ecb81;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:800;margin:12px 0}
+.prices,.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.price-card,.stat,.feat{background:#1e1e2e;border:1px solid #2a2a40;border-radius:12px;padding:10px}
+.price-card b{font-size:12px} .price-card small{color:#0ecb81;font-size:10px;display:block}
+.stat{text-align:center} .stat b{color:#f0b90b;font-size:16px;display:block} .stat span{font-size:9px;opacity:.5}
+.feat{display:flex;gap:10px;align-items:center;padding:12px;margin:6px 0}
+.feat i{width:32px;height:32px;background:#2a2a40;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#f0b90b}
+.login-box{background:#f5f5f7;border-radius:24px 24px 0 0;padding:20px 16px;color:#111;margin-top:10px}
+.tab{padding:12px;border-radius:12px;border:none;font-weight:800;font-size:12px;width:100%}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.active{background:#f0b90b;color:#000} .inactive{background:#e9e9ef;color:#111}
+.input{width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;margin:8px 0;font-size:14px}
+.btn{width:100%;padding:15px;border-radius:12px;background:#f0b90b;border:none;font-weight:900;margin-top:10px;color:#000}
+.msg{display:none;padding:10px;border-radius:10px;font-size:11px;margin:8px 0;background:#ffe0e0;color:#c00;border:1px solid #ffb3b3}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header">
 <div class="logo">KEVIN TRADE<span>HUB</span> KE</div>
-<div class="live-badge"><i></i> LIVE • 12,450+ Online</div>
-<div class="sub">Kenya's #1 Crypto & Gold Trading.</div>
-
-<div class="prices">
-<div class="price-card"><b>₿ BTC $40,256</b><small>+1.24%</small></div>
-<div class="price-card"><b>♦ ETH $2,983</b><small>+2.1%</small></div>
-<div class="price-card"><b>• GOLD $2,345</b><small>+0.78%</small></div>
+<div class="live">● LIVE • 12,450+ Online</div>
+<div style="font-size:12px;opacity:.6">Kenya's #1 Crypto & Gold Trading.</div>
+<div class="prices"><div class="price-card"><b>₿ BTC $40,256</b><small>+1.24%</small></div><div class="price-card"><b>♦ ETH $2,983</b><small>+2.1%</small></div><div class="price-card"><b>● GOLD $2,345</b><small>+0.78%</small></div></div>
+<div class="stats"><div class="stat"><b>$2.4M+</b><span>VOLUME</span></div><div class="stat"><b>0.01s</b><span>SPEED</span></div><div class="stat"><b>24/7</b><span>SUPPORT</span></div></div>
 </div>
-
-<div class="stats">
-<div class="stat"><b>$2.4M+</b><span>VOLUME</span></div>
-<div class="stat"><b>0.01s</b><span>SPEED</span></div>
-<div class="stat"><b>24/7</b><span>SUPPORT</span></div>
-</div>
-
-<div class="features">
-<div class="feat"><i class="fas fa-chart-line"></i><div><b>Live Charts</b><small>Real-time + TP/SL</small></div></div>
-<div class="feat"><i class="fas fa-coins"></i><div><b>Coins Rain - Live</b><small>Bitcoin inaanguka kwa street</small></div></div>
-<div class="feat"><i class="fas fa-money-bill-wave"></i><div><b>M-Pesa Instant</b><small>Withdraw 5 mins</small></div></div>
-</div>
-</div>
-
 <div class="login-box">
 <h2>Welcome Back 👋</h2>
-<p>Login - coins awaits you!</p>
-
-<div class="tabs">
-<button id="btnLogin" class="tab inactive" onclick="setMode(true)">LOGIN</button>
-<button id="btnSignup" class="tab active" onclick="setMode(false)">SIGN UP</button>
-</div>
-
+<div class="tabs"><button id="btnLogin" class="tab active" onclick="setMode(true)">LOGIN</button><button id="btnSignup" class="tab inactive" onclick="setMode(false)">SIGN UP</button></div>
 <div id="msgBox" class="msg"></div>
-
-<input id="phoneInput" class="input" placeholder="Username e.g. vokeh@254" value="Kevoh@254">
-<input id="passInput" class="input" type="password" placeholder="Password" value="">
-
-<button id="mainBtn" class="btn-main" onclick="handleAuth()">SIGN UP - START!! 🚀</button>
-
-<div class="attempt">Attempts: 0 <span onclick="resetAttempt()">Reset 🔒</span></div>
+<input id="phoneInput" class="input" placeholder="vokeh@254">
+<input id="passInput" class="input" type="password" placeholder="Password">
+<button id="mainBtn" class="btn" onclick="handleAuth()">LOGIN - START!! 🚀</button>
 </div>
 </div>
-
 <script>
 const BACKEND_URL = "https://tradehub-ke.onrender.com";
-let isLogin = false;
-
-function setMode(login){
-  isLogin = login;
-  document.getElementById('btnLogin').className = login ? 'tab active' : 'tab inactive';
-  document.getElementById('btnSignup').className = !login ? 'tab active' : 'tab inactive';
-  document.getElementById('mainBtn').innerText = login ? 'LOGIN - START!! 🚀' : 'SIGN UP - START!! 🚀';
-}
-
+let isLogin = true;
+function setMode(l){isLogin=l;document.getElementById('btnLogin').className=l?'tab active':'tab inactive';document.getElementById('btnSignup').className=!l?'tab active':'tab inactive';document.getElementById('mainBtn').innerText=l?'LOGIN - START!! 🚀':'SIGN UP - START!! 🚀';}
 async function handleAuth(){
-  let phone = document.getElementById('phoneInput').value.trim().toLowerCase();
-  let password = document.getElementById('passInput').value.trim();
-  let msgBox = document.getElementById('msgBox');
-  let btn = document.getElementById('mainBtn');
-
-  if(!phone || !password){
-    msgBox.style.display='block';
-    msgBox.innerText='Weka username na password';
-    return;
-  }
-
-  btn.innerText='LOADING...'; btn.disabled=true;
-  msgBox.style.display='none';
-
-  try{
-    let endpoint = isLogin ? '/api/login' : '/api/signup';
-    let res = await fetch(BACKEND_URL + endpoint, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({phone, password})
-    });
-
-    // HII NDIO FIX YA ERROR YAKO - Tunasoma kama text kwanza
-    let text = await res.text();
-    let data;
-    try{
-      data = JSON.parse(text);
-    }catch(err){
-      // Kama server inarudisha HTML, hatuta-crash
-      console.log('Server returned HTML:', text.slice(0,200));
-      msgBox.style.display='block';
-      msgBox.innerText='Server inaamka, subiri 15 sec ujaribu tena...';
-      btn.innerText = isLogin ? 'LOGIN - START!! 🚀' : 'SIGN UP - START!! 🚀';
-      btn.disabled=false;
-      return;
-    }
-
-    if(data.success){
-      localStorage.setItem('username', phone);
-      localStorage.setItem('loggedIn','true');
-      localStorage.setItem('session_expiry', Date.now()+30*60*1000);
-      if(phone === 'vokeh@254'){
-        location.href='admin.html';
-      } else {
-        location.href='dashboard.html';
-      }
-    } else {
-      msgBox.style.display='block';
-      msgBox.innerText = data.msg || 'Failed, try again';
-    }
-  }catch(e){
-    msgBox.style.display='block';
-    msgBox.innerText = 'Network error: '+e.message+' - Render inaweza kuwa inalala, refresh';
-  }
-  btn.innerText = isLogin ? 'LOGIN - START!! 🚀' : 'SIGN UP - START!! 🚀';
-  btn.disabled=false;
+ let phone=document.getElementById('phoneInput').value.trim().toLowerCase();
+ let password=document.getElementById('passInput').value.trim();
+ let msg=document.getElementById('msgBox');
+ let btn=document.getElementById('mainBtn');
+ if(phone==='kevoh@2540') phone='vokeh@254';
+ if(!phone||!password){msg.style.display='block';msg.innerText='Weka data';return;}
+ btn.innerText='LOADING...';btn.disabled=true;msg.style.display='none';
+ try{
+  let res=await fetch(BACKEND_URL+(isLogin?'/api/login':'/api/signup'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password})});
+  let data=await res.json();
+  if(data.success){localStorage.setItem('username',phone);localStorage.setItem('loggedIn','true');location.href=phone==='vokeh@254'?'admin.html':'dashboard.html';}
+  else{msg.style.display='block';msg.innerText=data.msg;}
+ }catch(e){msg.style.display='block';msg.innerText='Render inaamka, subiri 20sec ujaribu tena: '+e.message;}
+ btn.innerText=isLogin?'LOGIN - START!! 🚀':'SIGN UP - START!! 🚀';btn.disabled=false;
 }
-
-function resetAttempt(){ document.getElementById('msgBox').style.display='none'; }
-
-setMode(false);
-
-// Auto login check
-let exp = parseInt(localStorage.getItem('session_expiry')||'0');
-if(localStorage.getItem('loggedIn')==='true' && Date.now()<exp){
-  let u = localStorage.getItem('username');
-  if(u==='vokeh@254') location.href='admin.html';
-}
+setMode(true);
 </script>
 </body>
 </html>
