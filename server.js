@@ -108,6 +108,21 @@ app.post('/withdraw', async (req,res)=>{
   }catch(e){ console.log(e.response?.data); res.json({success:false, error:e.response?.data || e.message}); }
 });
 
+// === ADMIN APIs - ADDED ONLY ===
+app.get('/api/users', async (req,res)=>{
+  try{
+    let users = await User.find().sort({createdAt:-1});
+    res.json({success:true, users});
+  }catch(e){ res.json({success:false, msg:e.message}) }
+});
+
+app.delete('/api/users/:id', async (req,res)=>{
+  try{
+    await User.findByIdAndDelete(req.params.id);
+    res.json({success:true, msg:"Deleted"});
+  }catch(e){ res.json({success:false, msg:e.message}) }
+});
+
 // --- YAKO YA MWANZO - HAIJAGUSWA ---
 app.get('/', (req,res)=>{
   const loginPath = path.join(__dirname, 'login.html');
