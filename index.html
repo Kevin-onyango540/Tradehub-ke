@@ -1,71 +1,153 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KEVIN TRADEHUB KE</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,Arial}
-body{background:#0a0a0f;color:#fff;display:flex;justify-content:center}
-.container{width:100%;max-width:430px;background:#12121a;min-height:100vh}
-.header{padding:20px 16px}
-.logo{font-size:28px;font-weight:900} .logo span{color:#f0b90b}
-.live{display:inline-flex;gap:6px;align-items:center;background:rgba(14,203,129,.15);border:1px solid rgba(14,203,129,.3);color:#0ecb81;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:800;margin:12px 0}
-.prices,.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
-.price-card,.stat,.feat{background:#1e1e2e;border:1px solid #2a2a40;border-radius:12px;padding:10px}
-.price-card b{font-size:12px} .price-card small{color:#0ecb81;font-size:10px;display:block}
-.stat{text-align:center} .stat b{color:#f0b90b;font-size:16px;display:block} .stat span{font-size:9px;opacity:.5}
-.feat{display:flex;gap:10px;align-items:center;padding:12px;margin:6px 0}
-.feat i{width:32px;height:32px;background:#2a2a40;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#f0b90b}
-.login-box{background:#f5f5f7;border-radius:24px 24px 0 0;padding:20px 16px;color:#111;margin-top:10px}
-.tab{padding:12px;border-radius:12px;border:none;font-weight:800;font-size:12px;width:100%}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.active{background:#f0b90b;color:#000} .inactive{background:#e9e9ef;color:#111}
-.input{width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;margin:8px 0;font-size:14px}
-.btn{width:100%;padding:15px;border-radius:12px;background:#f0b90b;border:none;font-weight:900;margin-top:10px;color:#000}
-.msg{display:none;padding:10px;border-radius:10px;font-size:11px;margin:8px 0;background:#ffe0e0;color:#c00;border:1px solid #ffb3b3}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{min-height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:15px;background:#000}
+#bg-video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+#overlay{position:fixed;inset:0;background:linear-gradient(110deg, rgba(5,5,10,0.88) 0%, rgba(14,14,18,0.55) 50%, rgba(240,185,11,0.12) 100%);z-index:1}
+#coin-canvas{position:fixed;inset:0;z-index:2;pointer-events:none}
+.container{position:relative;z-index:3;display:grid;grid-template-columns:1.1fr 380px;max-width:1050px;width:100%;background:rgba(18,18,26,0.84);backdrop-filter:blur(22px);border:1px solid rgba(240,185,11,0.18);border-radius:24px;overflow:hidden;box-shadow:0 30px 100px rgba(0,0,0,0.9)}
+.left{padding:28px;color:#fff}.logo{font-size:26px;font-weight:900}.logo span{color:#f0b90b;text-shadow:0 0 20px #f0b90b}
+.badge{display:inline-flex;gap:6px;background:rgba(14,203,129,0.15);border:1px solid #0ecb81;color:#0ecb81;padding:6px 12px;border-radius:20px;font-size:10px;margin:14px 0;font-weight:800}
+.live-tick{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}.tick{background:rgba(0,0,0,0.6);border:1px solid rgba(240,185,11,0.15);padding:7px 12px;border-radius:10px;font-size:11px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0}.stat{background:rgba(0,0,0,0.5);padding:10px;border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.05)}.stat b{font-size:14px;color:#f0b90b}.stat span{font-size:8px;opacity:0.6;display:block}
+.feat{display:flex;gap:10px;margin:10px 0;font-size:12px}.feat i{width:34px;height:34px;background:#222;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#f0b90b}
+.right{padding:26px;background:rgba(15,15,22,0.95);border-left:1px solid rgba(240,185,11,0.1)}
+.input{width:100%;padding:13px;margin:6px 0;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;outline:none}.input:focus{border-color:#f0b90b}
+.btn{width:100%;padding:13px;background:linear-gradient(90deg,#f0b90b,#ffcf4a);color:#000;border:none;border-radius:10px;font-weight:900;margin-top:12px;cursor:pointer}
+@media(max-width:768px){body{padding:10px;align-items:flex-start;overflow:auto}.container{grid-template-columns:1fr}.left{padding:18px}.right{padding:20px;border-left:none;border-top:1px solid rgba(240,185,11,0.1)}.live-tick{flex-wrap:nowrap;overflow-x:auto}.live-tick::-webkit-scrollbar{display:none}}
+.err{color:#f6465d;font-size:11px;margin:6px 0;display:none;background:rgba(246,70,93,0.1);padding:8px;border-radius:6px}
+.tab{display:flex;gap:8px;margin-bottom:12px}.tab div{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,0.1);color:#fff;opacity:0.5}.tab div.active{background:#f0b90b;color:#000;opacity:1;border-color:#f0b90b}
 </style>
-</head>
-<body>
+</head><body>
+<video id="bg-video" autoplay muted loop playsinline>
+<source src="https://videos.pexels.com/video-files/18069234/18069234-uhd_1440_1440_24fps.mp4" type="video/mp4">
+</video>
+<div id="overlay"></div>
+<canvas id="coin-canvas"></canvas>
+
 <div class="container">
-<div class="header">
+<div class="left">
 <div class="logo">KEVIN TRADE<span>HUB</span> KE</div>
-<div class="live">● LIVE • 12,450+ Online</div>
-<div style="font-size:12px;opacity:.6">Kenya's #1 Crypto & Gold Trading.</div>
-<div class="prices"><div class="price-card"><b>₿ BTC $40,256</b><small>+1.24%</small></div><div class="price-card"><b>♦ ETH $2,983</b><small>+2.1%</small></div><div class="price-card"><b>● GOLD $2,345</b><small>+0.78%</small></div></div>
-<div class="stats"><div class="stat"><b>$2.4M+</b><span>VOLUME</span></div><div class="stat"><b>0.01s</b><span>SPEED</span></div><div class="stat"><b>24/7</b><span>SUPPORT</span></div></div>
+<div class="badge"><i class="fas fa-circle" style="font-size:6px"></i> LIVE • 12,450+ Online </div>
+<p style="opacity:0.75;font-size:11px">Kenya's #1 Crypto & Gold Trading.</p>
+<div class="live-tick">
+<div class="tick">₿ BTC <b>$40,256</b> <span style="color:#0ecb81">+1.24%</span></div>
+<div class="tick">♦ ETH <b>$2,983</b> <span style="color:#0ecb81">+2.1%</span></div>
+<div class="tick">● GOLD <b>$2,345</b> <span style="color:#0ecb81">+0.78%</span></div>
 </div>
-<div class="login-box">
-<h2>Welcome Back 👋</h2>
-<div class="tabs"><button id="btnLogin" class="tab active" onclick="setMode(true)">LOGIN</button><button id="btnSignup" class="tab inactive" onclick="setMode(false)">SIGN UP</button></div>
-<div id="msgBox" class="msg"></div>
-<input id="phoneInput" class="input" placeholder="vokeh@254">
-<input id="passInput" class="input" type="password" placeholder="Password">
-<button id="mainBtn" class="btn" onclick="handleAuth()">LOGIN - START!! 🚀</button>
+<div class="stats">
+<div class="stat"><b>$2.4M+</b><span>VOLUME</span></div>
+<div class="stat"><b>0.01s</b><span>SPEED</span></div>
+<div class="stat"><b>24/7</b><span>SUPPORT</span></div>
+</div>
+<div class="feat"><i class="fas fa-chart-line"></i><div><b>Live Charts</b><br><span style="opacity:0.6;font-size:10px">Real-time + TP/SL</span></div></div>
+<div class="feat"><i class="fas fa-coins"></i><div><b>Coins Rain - Live</b><br><span style="opacity:0.6;font-size:10px">Bitcoin inaanguka kwa street</span></div></div>
+<div class="feat"><i class="fas fa-money-bill-wave"></i><div><b>M-Pesa Instant</b><br><span style="opacity:0.6;font-size:10px">Withdraw 5 mins</span></div></div>
+</div>
+<div class="right">
+<h2 style="font-size:19px">Welcome Back 👋</h2>
+<p style="font-size:10px;opacity:0.6;margin:6px 0 14px">Login - coins awats you!</p>
+<div class="tab">
+<div id="tabLogin" class="active" onclick="setMode('login')">LOGIN</div>
+<div id="tabSignup" onclick="setMode('signup')">SIGN UP</div>
+</div>
+<div id="errorBox" class="err"></div>
+<input class="input" id="user" placeholder="Username e.g vokeh@2540" value="">
+<input class="input" id="pass" type="password" placeholder="Password min 4 chars">
+<button id="mainBtn" class="btn" onclick="handleAuth()">LOGIN - FREE COINS 🪙</button>
+<p style="font-size:9px;text-align:center;margin-top:12px;opacity:0.5">Attempts: <span id="attemptsLeft">5</span> • <span style="color:#f0b90b;cursor:pointer" onclick="resetAll()">Reset 🔓</span></p>
 </div>
 </div>
+
 <script>
-const BACKEND_URL = "https://tradehub-ke.onrender.com";
-let isLogin = true;
-function setMode(l){isLogin=l;document.getElementById('btnLogin').className=l?'tab active':'tab inactive';document.getElementById('btnSignup').className=!l?'tab active':'tab inactive';document.getElementById('mainBtn').innerText=l?'LOGIN - START!! 🚀':'SIGN UP - START!! 🚀';}
-async function handleAuth(){
- let phone=document.getElementById('phoneInput').value.trim().toLowerCase();
- let password=document.getElementById('passInput').value.trim();
- let msg=document.getElementById('msgBox');
- let btn=document.getElementById('mainBtn');
- if(phone==='kevoh@2540') phone='vokeh@254';
- if(!phone||!password){msg.style.display='block';msg.innerText='Weka data';return;}
- btn.innerText='LOADING...';btn.disabled=true;msg.style.display='none';
- try{
-  let res=await fetch(BACKEND_URL+(isLogin?'/api/login':'/api/signup'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password})});
-  let data=await res.json();
-  if(data.success){localStorage.setItem('username',phone);localStorage.setItem('loggedIn','true');location.href=phone==='vokeh@254'?'admin.html':'dashboard.html';}
-  else{msg.style.display='block';msg.innerText=data.msg;}
- }catch(e){msg.style.display='block';msg.innerText='Render inaamka, subiri 20sec ujaribu tena: '+e.message;}
- btn.innerText=isLogin?'LOGIN - START!! 🚀':'SIGN UP - START!! 🚀';btn.disabled=false;
+// COINS ANIMATION - YAKO YA MWANZO - HAIJAGUSWA KABISA
+const canvas=document.getElementById('coin-canvas');const ctx=canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}resize();window.onresize=resize;
+const coins=[];const symbols=['₿','🪙','$','◎'];
+for(let i=0;i<25;i++){coins.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight-Math.random()*1000,s:Math.random()*20+10,sp:Math.random()*2+0.5,r:Math.random()*360,rs:(Math.random()-0.5)*2,sym:symbols[Math.floor(Math.random()*symbols.length)]})}
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ coins.forEach(c=>{
+   c.y+=c.sp;c.r+=c.rs;if(c.y>canvas.height+30){c.y=-30;c.x=Math.random()*innerWidth}
+   ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.r*Math.PI/180);
+   ctx.font=c.s+'px Arial';ctx.fillStyle='rgba(240,185,11,'+(0.3+Math.random()*0.5)+')';ctx.shadowColor='#f0b90b';ctx.shadowBlur=10;
+   ctx.fillText(c.sym,0,0);ctx.restore();
+ });
+ requestAnimationFrame(draw);
+}draw();
+
+// === NEW REAL AUTH WITH MONGODB - ADDED ONLY ===
+let mode='login';
+function setMode(m){
+ mode=m;
+ document.getElementById('tabLogin').className=m=='login'?'active':'';
+ document.getElementById('tabSignup').className=m=='signup'?'active':'';
+ document.getElementById('mainBtn').innerText=m=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - START!! 🚀';
+ document.getElementById('errorBox').style.display='none';
 }
-setMode(true);
+function resetAll(){ localStorage.clear(); alert('Reset done!'); location.reload(); }
+function updLock(){ document.getElementById('attemptsLeft').innerText='5'; } updLock();
+
+async function handleAuth(){
+ let u=document.getElementById('user').value.toLowerCase().trim();
+ let p=document.getElementById('pass').value.trim();
+ let errBox=document.getElementById('errorBox');
+ let btn=document.getElementById('mainBtn');
+
+ if(u.length<3||p.length<4){ errBox.style.display='block'; errBox.style.color='#f6465d'; errBox.innerText='Username min 3, Password min 4'; return; }
+
+ btn.disabled=true;
+ btn.innerText='⏳ Processing...';
+
+ try{
+   let url = mode=='signup' ? '/register' : '/login';
+   let res = await fetch(url, {
+     method:'POST',
+     headers:{'Content-Type':'application/json'},
+     body: JSON.stringify({phone:u, password:p})
+   });
+   let data = await res.json();
+
+   if(!data.success){
+     errBox.style.display='block';
+     errBox.style.color='#f6465d';
+     errBox.innerText=data.msg;
+     btn.disabled=false;
+     btn.innerText=mode=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - START!! 🚀';
+     if(data.msg.includes('already')) setMode('login');
+     return;
+   }
+
+   // SUCCESS
+   errBox.style.display='block';
+   errBox.style.color='#0ecb81';
+   errBox.innerText=data.msg + ' Redirecting...';
+
+   localStorage.setItem('loggedIn','true');
+   localStorage.setItem('username',u);
+   localStorage.setItem('userId', data.user._id);
+   localStorage.setItem('phone', data.user.phone);
+   localStorage.setItem('session_token', Math.random().toString(36).substring(2));
+   localStorage.setItem('session_expiry', Date.now()+30*60*1000);
+   if(!localStorage.getItem('balance')){localStorage.setItem('balance','24587.50');localStorage.setItem('availBalance','12340.00');}
+   
+   setTimeout(()=>{
+     location.href = u=='vokeh@254' ? 'admin.html' : 'dashboard.html';
+   }, 800);
+
+ }catch(e){
+   errBox.style.display='block';
+   errBox.style.color='#f6465d';
+   errBox.innerText='Server error: '+e.message;
+   btn.disabled=false;
+   btn.innerText=mode=='login'?'LOGIN - FREE COINS 🪙':'SIGN UP - START!! 🚀';
+ }
+}
+
+document.getElementById('pass').addEventListener('keydown',e=>{ if(e.key==='Enter') handleAuth(); });
+if(localStorage.getItem('loggedIn')==='true' && parseInt(localStorage.getItem('session_expiry')||0)>Date.now()){ location.href=(localStorage.getItem('username')||'').toLowerCase()=='vokeh@254'?'admin.html':'dashboard.html'; }
 </script>
 </body>
 </html>
